@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fa">
+  <head>
+    <meta charset="UTF-8" />
+    <title>مینی‌اپ ارز دیجیتال</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 20px;
+        background: #121212;
+        color: #fff;
+      }
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .tab {
+        padding: 10px 20px;
+        border-radius: 8px;
+        background: #333;
+        cursor: pointer;
+      }
+      .tab.active {
+        background: #00b894;
+      }
+      .content {
+        border-top: 1px solid #555;
+        padding-top: 20px;
+      }
+      select,
+      table {
+        background: #222;
+        color: #fff;
+        border: none;
+        padding: 10px;
+      }
+      table {
+        width: 100%;
+        margin-top: 10px;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #444;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>مینی‌اپ ارز دیجیتال</h1>
+    <div class="tabs">
+      <div class="tab active" onclick="showTab(0)">قیمت ارز</div>
+      <div class="tab" onclick="showTab(1)">اخبار</div>
+      <div class="tab" onclick="showTab(2)">رفرال ها</div>
+      <div class="tab" onclick="showTab(3)">قرارداد ها</div>
+      <div class="tab" onclick="showTab(4)">کیف پول</div>
+    </div>
+    <div class="content" id="tab-content">
+      <!-- محتوای تب‌ها اینجا میاد -->
+    </div>
+
+    <script>
+      let currentTab = 0;
+      const apiUrl = "https://mnymaker-production.up.railway.app/crypto"; // لینک Railway
+
+      function showTab(index) {
+        currentTab = index;
+        document.querySelectorAll(".tab").forEach((tab, i) => {
+          tab.classList.toggle("active", i === index);
+        });
+        const content = document.getElementById("tab-content");
+
+        if (index === 0) {
+          content.innerHTML = "<p>در حال بارگذاری...</p>";
+          fetch(apiUrl)
+            .then((res) => res.json())
+            .then((data) => {
+              let options = data
+                .map(
+                  (coin) => `<option value="${coin.id}">${coin.name}</option>`
+                )
+                .join("");
+              let table = `<table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>`;
+              table +=
+                data
+                  .map(
+                    (coin) => `
+                <tr>
+                  <td>${coin.name}</td>
+                  <td>$${coin.price}</td>
+                  <td style="color:${
+                    coin.change >= 0 ? "lightgreen" : "salmon"
+                  }">
+                    ${coin.change.toFixed(2)}%
+                  </td>
+                </tr>
+              `
+                  )
+                  .join("") + "</tbody></table>";
+              content.innerHTML = `
+                <label>انتخاب ارز:</label>
+                <select>${options}</select>
+                ${table}
+              `;
+            });
+        } else if (index === 1) {
+          content.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
+          fetch("https://amyrgit-production.up.railway.app/news")
+            .then((res) => res.json())
+            .then((news) => {
+              let html = news
+                .map(
+                  (item) => `
+        <div style="margin-bottom:20px;border-bottom:1px solid #444;padding-bottom:10px">
+          <img src="${item.image}" alt="${item.title}" style="max-width:100%;border-radius:12px;" />
+          <h3 style="margin:10px 0;">${item.title}</h3>
+          <p>${item.summary}</p>
+          <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
+        </div>
+      `
+                )
+                .join("");
+              content.innerHTML = html;
+            })
+            .catch((err) => {
+              content.innerHTML = "<p>خطا در دریافت اخبار!</p>";
+            });
+        } else if (index === 2) {
+          if (
+            typeof window.Telegram !== "undefined" &&
+            window.Telegram.WebApp
+          ) {
+            // اگر WebApp تلگرام موجود باشد
+            const tg = window.Telegram.WebApp;
+            const userId = tg?.initDataUnsafe?.user?.id || "guest";
+            content.innerHTML = "<p>در حال دریافت اطلاعات...</p>";
+            fetch(
+              `https://mnymaker-production.up.railway.app/referral/join?user_id=${userId}`
+            )
+              .then((res) => res.json())
+              .then((data) => {
+                if (data && data.ref_code) {
+                  content.innerHTML = `
+            <h2>لینک دعوت شما</h2>
+            <p>با دعوت دوستان امتیاز بگیرید!</p>
+            <input value="https://t.me/MnyMakr_BOT?start=${
+              data.ref_code
+            }" style="width:100%;padding:10px" readonly />
+            <p>امتیاز شما: ${data.points}</p>
+            <p>افراد دعوت‌شده:</p>
+            <ul>${data.invited.map((id) => `<li>${id}</li>`).join("")}</ul>
+          `;
+                } else {
+                  content.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
+                }
+              })
+              .catch((err) => {
+                console.error(err);
+                content.innerHTML = "<p>خطا در دریافت داده‌ها!</p>";
+              });
+          } else {
+            // در صورتی که WebApp در دسترس نباشد
+            content.innerHTML =
+              "<p>این قابلیت تنها در محیط تلگرام قابل استفاده است.</p>";
+          }
+        } else {
+          content.innerHTML = `<h2>Hello World from Tab ${index + 1}</h2>`;
+        }
+      }
+
+      // به محض بارگذاری صفحه، تب اول رو نمایش بده
+      window.onload = function () {
+        showTab(0);
+      };
+    </script>
+  </body>
+</html>
