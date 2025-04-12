@@ -253,7 +253,35 @@
   } else {
     content.innerHTML = "<p>این بخش فقط در تلگرام قابل استفاده است.</p>";
   }
-}
+}} else if (index === 4) {
+  if (
+    typeof window.Telegram !== "undefined" &&
+    window.Telegram.WebApp
+  ) {
+    const tg = window.Telegram.WebApp;
+    const userId = tg?.initDataUnsafe?.user?.id || "guest";
+    content.innerHTML = "<p>در حال دریافت کیف پول...</p>";
+    fetch(`https://walletapp-production-ccf1.up.railway.app/wallet?user_id=${userId}`)
+      .then((res) => res.json())
+      .then((wallet) => {
+        if (wallet) {
+          content.innerHTML = `
+            <h2>کیف پول شما</h2>
+            <p><strong>موجودی:</strong> ${wallet.balance} امتیاز</p>
+            <p><strong>تاریخ ایجاد:</strong> ${new Date(wallet.created_at).toLocaleString("fa-IR")}</p>
+          `;
+        } else {
+          content.innerHTML = "<p>خطا در دریافت کیف پول.</p>";
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        content.innerHTML = "<p>خطا در ارتباط با سرور.</p>";
+      });
+  } else {
+    content.innerHTML =
+      "<p>این قابلیت تنها در محیط تلگرام قابل استفاده است.</p>";
+  }
 else {
           content.innerHTML = `<h2>Hello World from Tab ${index + 1}</h2>`;
         }
