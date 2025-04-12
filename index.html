@@ -166,10 +166,12 @@
             content.innerHTML =
               "<p>این قابلیت تنها در محیط تلگرام قابل استفاده است.</p>";
           }
-        } else if (index === 3) {
+        }else if (index === 3) {
   if (typeof window.Telegram !== "undefined" && window.Telegram.WebApp) {
     const tg = window.Telegram.WebApp;
     const userId = tg?.initDataUnsafe?.user?.id || "guest";
+
+    // نمایش فرم ثبت قرارداد جدید
     content.innerHTML = `
       <h2>ثبت قرارداد جدید</h2>
       <label>مبلغ (USDT):</label>
@@ -184,6 +186,8 @@
       <textarea id="desc" rows="3" style="width:100%;padding:10px;margin-bottom:10px"></textarea>
       <button onclick="submitContract()" style="padding:10px 20px;background:#00b894;color:#fff;border:none;border-radius:8px;cursor:pointer">ثبت قرارداد</button>
     `;
+
+    // تابع ارسال قرارداد به سرور
     window.submitContract = () => {
       const amount = document.getElementById("amount").value;
       const due = document.getElementById("due").value;
@@ -201,12 +205,51 @@
         .then(res => res.json())
         .then(data => {
           content.innerHTML = `<p>قرارداد با موفقیت ثبت شد.</p>`;
+          loadContracts();  // بارگذاری دوباره لیست قراردادها بعد از ثبت قرارداد جدید
         })
         .catch(err => {
           content.innerHTML = `<p>خطا در ثبت قرارداد!</p>`;
           console.error(err);
         });
     };
+
+    // تابع بارگذاری لیست قراردادها
+    function loadContracts() {
+      content.innerHTML += "<h2>لیست قراردادها</h2><p>در حال بارگذاری...</p>";
+      fetch(`https://mnymaker-production.up.railway.app/contract/list?user_id=${userId}`)
+        .then(res => res.json())
+        .then(contracts => {
+          let table = `
+            <table>
+              <thead>
+                <tr>
+                  <th>مبلغ</th>
+                  <th>تاریخ پایان</th>
+                  <th>توضیحات</th>
+                  <th>وضعیت</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          table += contracts
+            .map(contract => `
+              <tr>
+                <td>${contract.amount} USDT</td>
+                <td>${contract.due_date}</td>
+                <td>${contract.description}</td>
+                <td>${contract.status}</td>
+              </tr>
+            `)
+            .join("") + "</tbody></table>";
+          content.innerHTML += table;
+        })
+        .catch(err => {
+          content.innerHTML += `<p>خطا در دریافت لیست قراردادها!</p>`;
+          console.error(err);
+        });
+    }
+
+    loadContracts();  // فراخوانی تابع برای بارگذاری لیست قراردادها
   } else {
     content.innerHTML = "<p>این بخش فقط در تلگرام قابل استفاده است.</p>";
   }
