@@ -166,7 +166,52 @@
             content.innerHTML =
               "<p>این قابلیت تنها در محیط تلگرام قابل استفاده است.</p>";
           }
-        } else {
+        } else if (index === 3) {
+  if (typeof window.Telegram !== "undefined" && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    const userId = tg?.initDataUnsafe?.user?.id || "guest";
+    content.innerHTML = `
+      <h2>ثبت قرارداد جدید</h2>
+      <label>مبلغ (USDT):</label>
+      <input type="number" id="amount" style="width:100%;padding:10px;margin-bottom:10px" />
+      <label>تاریخ پایان:</label>
+      <select id="due" style="width:100%;padding:10px;margin-bottom:10px">
+        ${[7, 14, 21, 28].map(
+          d => `<option value="${d}">${d} روز آینده</option>`
+        ).join("")}
+      </select>
+      <label>توضیحات:</label>
+      <textarea id="desc" rows="3" style="width:100%;padding:10px;margin-bottom:10px"></textarea>
+      <button onclick="submitContract()" style="padding:10px 20px;background:#00b894;color:#fff;border:none;border-radius:8px;cursor:pointer">ثبت قرارداد</button>
+    `;
+    window.submitContract = () => {
+      const amount = document.getElementById("amount").value;
+      const due = document.getElementById("due").value;
+      const desc = document.getElementById("desc").value;
+      fetch("https://mnymaker-production.up.railway.app/contract/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: userId,
+          amount,
+          due_days: due,
+          description: desc
+        }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          content.innerHTML = `<p>قرارداد با موفقیت ثبت شد.</p>`;
+        })
+        .catch(err => {
+          content.innerHTML = `<p>خطا در ثبت قرارداد!</p>`;
+          console.error(err);
+        });
+    };
+  } else {
+    content.innerHTML = "<p>این بخش فقط در تلگرام قابل استفاده است.</p>";
+  }
+}
+else {
           content.innerHTML = `<h2>Hello World from Tab ${index + 1}</h2>`;
         }
       }
