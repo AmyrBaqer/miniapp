@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>مینی‌اپ ارز دیجیتال</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -16,26 +15,20 @@
       background: #121212;
       color: #fff;
       padding-bottom: 70px;
-      overflow-x: hidden;
     }
     .tab-container {
-      position: relative;
       width: 100%;
-      height: auto;
-      min-height: 300px;
     }
     .tab-content {
-      position: absolute;
-      width: 100%;
-      top: 0;
-      left: 100%;
+      display: none;
       opacity: 0;
-      transition: all 0.4s ease-in-out;
+      transform: translateX(30px);
+      transition: all 0.3s ease-in-out;
     }
     .tab-content.active {
-      left: 0;
+      display: block;
       opacity: 1;
-      z-index: 1;
+      transform: translateX(0);
     }
     .tabs {
       position: fixed;
@@ -50,19 +43,15 @@
     .tab {
       flex: 1;
       text-align: center;
-      padding: 8px 0;
+      padding: 10px 0;
       cursor: pointer;
       color: #aaa;
       font-size: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s, color 0.3s;
     }
     .tab i {
-      font-size: 20px;
-      margin-bottom: 3px;
+      display: block;
+      font-size: 18px;
+      margin-bottom: 2px;
     }
     .tab.active {
       background: #00b894;
@@ -91,65 +80,55 @@
       cursor: pointer;
     }
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-  <div class="tab-container" id="tab-container">
+  <div class="tab-container">
     <div class="tab-content active" id="tab-0"></div>
     <div class="tab-content" id="tab-1"></div>
     <div class="tab-content" id="tab-2"></div>
     <div class="tab-content" id="tab-3"></div>
     <div class="tab-content" id="tab-4"></div>
   </div>
-
   <div class="tabs">
-    <div class="tab active" onclick="switchTab(0)">
-      <i class="bi bi-currency-bitcoin"></i>قیمت
-    </div>
-    <div class="tab" onclick="switchTab(1)">
-      <i class="bi bi-newspaper"></i>اخبار
-    </div>
-    <div class="tab" onclick="switchTab(2)">
-      <i class="bi bi-person-plus"></i>رفرال
-    </div>
-    <div class="tab" onclick="switchTab(3)">
-      <i class="bi bi-pencil-square"></i>قرارداد
-    </div>
-    <div class="tab" onclick="switchTab(4)">
-      <i class="bi bi-wallet2"></i>کیف پول
-    </div>
+    <div class="tab active" onclick="switchTab(0)"><i class="fas fa-coins"></i>قیمت</div>
+    <div class="tab" onclick="switchTab(1)"><i class="fas fa-newspaper"></i>اخبار</div>
+    <div class="tab" onclick="switchTab(2)"><i class="fas fa-user-friends"></i>رفرال</div>
+    <div class="tab" onclick="switchTab(3)"><i class="fas fa-file-signature"></i>قرارداد</div>
+    <div class="tab" onclick="switchTab(4)"><i class="fas fa-wallet"></i>کیف پول</div>
   </div>
 
   <script>
     let currentTab = 0;
     const loadedTabs = {};
-    const tabCache = {};
-    const tabs = Array.from(document.getElementsByClassName("tab-content"));
+    const tabEls = document.querySelectorAll('.tab-content');
 
     function switchTab(index) {
       if (index === currentTab) return;
 
-      document.querySelectorAll(".tab").forEach((tab, i) =>
+      document.querySelectorAll('.tab').forEach((tab, i) =>
         tab.classList.toggle("active", i === index)
       );
 
-      tabs[currentTab].classList.remove("active");
-      tabs[index].classList.add("active");
+      tabEls[currentTab].classList.remove("active");
+      tabEls[index].classList.add("active");
 
       currentTab = index;
+
       if (!loadedTabs[index]) {
         loadTab(index);
         loadedTabs[index] = true;
       }
     }
 
-    function cacheTab(index, html) {
-      tabCache[index] = html;
+    function saveContent(index, html) {
+      sessionStorage.setItem("tab_" + index, html);
     }
 
     function loadTab(index) {
-      const el = document.getElementById(`tab-${index}`);
+      const contentEl = document.getElementById(`tab-${index}`);
       if (index === 0) {
-        el.innerHTML = "<p>در حال بارگذاری...</p>";
+        contentEl.innerHTML = "<p>در حال بارگذاری...</p>";
         fetch("https://mnymaker-production.up.railway.app/crypto")
           .then(res => res.json())
           .then(data => {
@@ -162,14 +141,14 @@
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
                 </tr>`).join("") + "</tbody></table>";
             const html = `<label>انتخاب ارز:</label><select>${options}</select>${table}`;
-            el.innerHTML = html;
-            cacheTab(index, html);
+            contentEl.innerHTML = html;
+            saveContent(0, html);
           })
-          .catch(() => el.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
+          .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
       }
 
       if (index === 1) {
-        el.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
+        contentEl.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
         fetch("https://amyrgit-production.up.railway.app/news")
           .then(res => res.json())
           .then(news => {
@@ -180,29 +159,30 @@
                 <p>${item.summary}</p>
                 <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
               </div>`).join("");
-            el.innerHTML = html;
-            cacheTab(index, html);
+            contentEl.innerHTML = html;
+            saveContent(1, html);
           })
-          .catch(() => el.innerHTML = "<p>خطا در دریافت اخبار!</p>");
+          .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اخبار!</p>");
       }
 
       if (index === 2) {
         loadTelegramUser(userId => {
-          el.innerHTML = "<p>در حال دریافت اطلاعات...</p>";
+          contentEl.innerHTML = "<p>در حال دریافت اطلاعات...</p>";
           fetch(`https://mnymaker-production.up.railway.app/referral/join?user_id=${userId}`)
             .then(res => res.json())
             .then(data => {
-              const html = data.ref_code ? `
-                <h2>لینک دعوت شما</h2>
-                <input value="https://t.me/MnyMakr_BOT?start=${data.ref_code}" readonly />
-                <p>امتیاز شما: ${data.points}</p>
-                <p>افراد دعوت‌شده:</p>
-                <ul>${data.invited.map(id => `<li>${id}</li>`).join("")}</ul>` :
-                "<p>داده‌ای برای نمایش وجود ندارد.</p>";
-              el.innerHTML = html;
-              cacheTab(index, html);
+              if (data.ref_code) {
+                const html = `
+                  <h2>لینک دعوت شما</h2>
+                  <input value="https://t.me/MnyMakr_BOT?start=${data.ref_code}" readonly />
+                  <p>امتیاز شما: ${data.points}</p>
+                  <p>افراد دعوت‌شده:</p>
+                  <ul>${data.invited.map(id => `<li>${id}</li>`).join("")}</ul>`;
+                contentEl.innerHTML = html;
+                saveContent(2, html);
+              } else contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
             })
-            .catch(() => el.innerHTML = "<p>خطا در دریافت داده‌ها!</p>");
+            .catch(() => contentEl.innerHTML = "<p>خطا در دریافت داده‌ها!</p>");
         });
       }
 
@@ -218,25 +198,25 @@
             <textarea id="desc" rows="3"></textarea>
             <button onclick="submitContract('${userId}')">ثبت قرارداد</button>
             <div id="contracts"></div>`;
-          el.innerHTML = html;
-          loadContracts(userId, el);
+          contentEl.innerHTML = html;
+          loadContracts(userId);
         });
       }
 
       if (index === 4) {
         loadTelegramUser(userId => {
-          el.innerHTML = "<p>در حال دریافت کیف پول...</p>";
+          contentEl.innerHTML = "<p>در حال دریافت کیف پول...</p>";
           fetch(`https://walletapp-production-ccf1.up.railway.app/wallet?user_id=${userId}`)
             .then(res => res.json())
             .then(wallet => {
-              el.innerHTML = wallet ? `
+              const html = wallet ? `
                 <h2>کیف پول شما</h2>
                 <p><strong>موجودی:</strong> ${wallet.balance} امتیاز</p>
-                <p><strong>تاریخ ایجاد:</strong> ${new Date(wallet.created_at).toLocaleString("fa-IR")}</p>` :
-                "<p>خطا در دریافت کیف پول.</p>";
-              cacheTab(index, el.innerHTML);
+                <p><strong>تاریخ ایجاد:</strong> ${new Date(wallet.created_at).toLocaleString("fa-IR")}</p>` : "<p>خطا در دریافت کیف پول.</p>";
+              contentEl.innerHTML = html;
+              saveContent(4, html);
             })
-            .catch(() => el.innerHTML = "<p>خطا در ارتباط با سرور.</p>");
+            .catch(() => contentEl.innerHTML = "<p>خطا در ارتباط با سرور.</p>");
         });
       }
     }
@@ -245,7 +225,7 @@
       if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
         callback(Telegram.WebApp.initDataUnsafe.user.id);
       } else {
-        alert("این قابلیت فقط در تلگرام قابل استفاده است.");
+        document.getElementById(`tab-${currentTab}`).innerHTML = "<p>این قابلیت تنها در محیط تلگرام فعال است.</p>";
       }
     }
 
@@ -260,10 +240,10 @@
       })
         .then(res => res.json())
         .then(() => switchTab(3))
-        .catch(() => alert("خطا در ثبت قرارداد!"));
+        .catch(() => document.getElementById("contracts").innerHTML += "<p>خطا در ثبت قرارداد!</p>");
     }
 
-    function loadContracts(userId, el) {
+    function loadContracts(userId) {
       fetch(`https://mnymaker-production.up.railway.app/contract/list?user_id=${userId}`)
         .then(res => res.json())
         .then(contracts => {
@@ -277,9 +257,9 @@
                 <td>${c.description}</td>
                 <td>${c.status}</td>
               </tr>`).join("") + "</tbody></table>";
-          el.querySelector("#contracts").innerHTML = table;
+          document.getElementById("contracts").innerHTML = table;
         })
-        .catch(() => el.querySelector("#contracts").innerHTML = "<p>خطا در دریافت لیست قراردادها!</p>");
+        .catch(() => document.getElementById("contracts").innerHTML = "<p>خطا در دریافت لیست قراردادها!</p>");
     }
 
     window.onload = () => {
