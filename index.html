@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fa" >
+<html lang="fa">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,24 +11,25 @@
     * {
       box-sizing: border-box;
     }
-    body {
+    html, body {
       font-family: sans-serif;
       margin: 0;
       background: #121212;
       color: #fff;
-      padding-bottom: 70px;
+      padding: 0;
       direction: rtl;
-      height: 100vh;
+      height: 100%;
       overflow: hidden;
     }
     .tab-container {
-      width: 100%;
-      height: 100%;
+      height: calc(100% - 60px);
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
+      overflow: hidden;
     }
     .tab-content {
+      flex: 1;
       width: 100%;
       padding: 16px;
       text-align: center;
@@ -43,6 +44,7 @@
       bottom: 0;
       right: 0;
       width: 100%;
+      height: 60px;
       background: #1e1e1e;
       display: flex;
       flex-direction: row-reverse;
@@ -52,15 +54,17 @@
     .tab {
       flex: 1;
       text-align: center;
-      padding: 10px 0;
+      padding: 6px 0;
       cursor: pointer;
       color: #aaa;
       font-size: 12px;
       transition: background 0.3s, color 0.3s;
-      border-radius: 12px 12px 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .tab i {
-      display: block;
       font-size: 18px;
       margin-bottom: 2px;
     }
@@ -111,30 +115,25 @@
     <div class="tab" onclick="switchTab(3)"><i class="fas fa-file-signature"></i>قرارداد</div>
     <div class="tab" onclick="switchTab(4)"><i class="fas fa-wallet"></i>کیف پول</div>
   </div>
-
   <script>
     let currentTab = 0;
-    const loadedTabs = {};
+    const loadedTabs = { 0: true };
     const tabEls = document.querySelectorAll('.tab-content');
-    
+
     function switchTab(index) {
       if (index === currentTab) return;
-      
-      // حذف کلاس active از تب قبلی
       document.querySelectorAll('.tab').forEach((tab, i) =>
         tab.classList.toggle("active", i === index)
       );
       tabEls[currentTab].classList.remove("active");
       tabEls[index].classList.add("active");
       currentTab = index;
-
-      // بارگذاری محتوا برای تب جدید
       if (!loadedTabs[index]) {
         loadTab(index);
         loadedTabs[index] = true;
       }
     }
-    
+
     function loadTab(index) {
       const contentEl = document.getElementById(`tab-${index}`);
       if (index === 0) {
@@ -149,23 +148,18 @@
                 <select id="currencySelect">${options}</select>
                 <div class="scrollable">
                   <table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>` +
-              data.map(c => `
-                <tr>
-                  <td>${c.name}</td>
-                  <td>$${c.price}</td>
-                  <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
-                </tr>`).join("") + "</tbody></table></div>";
+                data.map(c => `
+                  <tr>
+                    <td>${c.name}</td>
+                    <td>$${c.price}</td>
+                    <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
+                  </tr>`).join("") + "</tbody></table></div>";
               contentEl.innerHTML = table;
             } else {
               contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
             }
           })
           .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
-        
-        document.getElementById("currencySelect").addEventListener("change", (e) => {
-          const selectedSymbol = e.target.value;
-          // در اینجا می‌توانید عملکرد مربوط به تغییر ارز را اضافه کنید (اگر نیاز دارید).
-        });
       }
       if (index === 1) {
         contentEl.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
@@ -237,7 +231,7 @@
         });
       }
     }
-    
+
     function loadTelegramUser(callback) {
       if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
         callback(Telegram.WebApp.initDataUnsafe.user.id);
@@ -245,7 +239,7 @@
         document.getElementById(`tab-${currentTab}`).innerHTML = "<p>این قابلیت تنها در محیط تلگرام فعال است.</p>";
       }
     }
-    
+
     window.onload = () => {
       loadTab(0);
     };
