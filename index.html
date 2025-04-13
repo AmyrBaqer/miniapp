@@ -92,10 +92,12 @@
     <div class="tab" onclick="switchTab(3)"><i class="fas fa-file-signature"></i>قرارداد</div>
     <div class="tab" onclick="switchTab(4)"><i class="fas fa-wallet"></i>کیف پول</div>
   </div>
+
   <script>
     let currentTab = 0;
     const loadedTabs = {};
     const tabEls = document.querySelectorAll('.tab-content');
+
     function switchTab(index) {
       if (index === currentTab) return;
       document.querySelectorAll('.tab').forEach((tab, i) =>
@@ -119,26 +121,31 @@
           .then(data => {
             if (data && data.length > 0) {
               const options = data.map(c => `<option value="${c.symbol}">${c.name}</option>`).join("");
+              const defaultSymbol = data[0].symbol;
               const tableRows = data.map(c => `
                 <tr>
                   <td>${c.name}</td>
                   <td>$${c.price}</td>
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
                 </tr>`).join("");
+
               contentEl.innerHTML = `
-                <label>انتخاب ارز برای نمایش چارت:</label>
+                <label>انتخاب ارز:</label>
                 <select id="currencySelect">${options}</select>
                 <div id="chartContainer" style="margin: 20px 0; height: 300px;"></div>
                 <div class="scrollable">
-                  <table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>${tableRows}</tbody></table>
+                  <table>
+                    <thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead>
+                    <tbody>${tableRows}</tbody>
+                  </table>
                 </div>`;
-              const defaultSymbol = "TON";
+
               renderChart(defaultSymbol);
-              document.getElementById("currencySelect").value = defaultSymbol;
               document.getElementById("currencySelect").addEventListener("change", (e) => {
                 const selectedSymbol = e.target.value;
                 renderChart(selectedSymbol);
               });
+
               function renderChart(symbol) {
                 document.getElementById("chartContainer").innerHTML = "";
                 new TradingView.widget({
@@ -165,7 +172,28 @@
           .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
       }
 
-if (index === 2) {
+      if (index === 1) {
+        contentEl.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
+        fetch("https://amyrgit-production.up.railway.app/news")
+          .then(res => res.json())
+          .then(news => {
+            if (news && news.length > 0) {
+              const html = news.map(item => `
+                <div style="margin-bottom:20px;border-bottom:1px solid #444;padding-bottom:10px">
+                  <img src="${item.image}" style="max-width:100%;border-radius:12px" />
+                  <h3>${item.title}</h3>
+                  <p>${item.summary}</p>
+                  <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
+                </div>`).join("");
+              contentEl.innerHTML = html;
+            } else {
+              contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
+            }
+          })
+          .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اخبار!</p>");
+      }
+
+      if (index === 2) {
         loadTelegramUser(userId => {
           contentEl.innerHTML = "<p>در حال دریافت اطلاعات...</p>";
           fetch(`https://mnymaker-production.up.railway.app/referral/join?user_id=${userId}`)
@@ -225,7 +253,6 @@ if (index === 2) {
         document.getElementById(`tab-${currentTab}`).innerHTML = "<p>این قابلیت تنها در محیط تلگرام فعال است.</p>";
       }
     }
-
 
     window.onload = () => {
       loadTab(0);
