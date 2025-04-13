@@ -18,7 +18,13 @@
       height: 100vh;
       overflow: hidden;
     }
-    .tab-container { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; }
+    .tab-container { 
+      width: 100%; 
+      height: calc(100vh - 60px); 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: flex-start; 
+    }
     .tab-content {
       width: 100%;
       padding: 16px;
@@ -26,6 +32,7 @@
       display: none;
       overflow-y: auto;
       position: relative;
+      height: 100%;
     }
     .tab-content.active { display: block; }
     .tabs {
@@ -38,7 +45,7 @@
       flex-direction: row-reverse;
       border-top: 1px solid #333;
       z-index: 1000;
-      padding: 0.8px 0; /* Increased by 8% */
+      padding: 0.8px 0;
     }
     .tab {
       flex: 1;
@@ -46,19 +53,19 @@
       padding: 10px 0;
       cursor: pointer;
       color: #aaa;
-      font-size: 12.96px; /* Increased by 8% */
+      font-size: 12.96px;
       transition: background 0.3s, color 0.3s;
       border-radius: 12px 12px 0 0;
     }
     .tab i {
       display: block;
-      font-size: 20.9952px; /* Increased by 8% */
+      font-size: 20.9952px;
       margin-bottom: 2px;
     }
     .tab.active {
       background: #00b894;
       color: #fff;
-      padding: 11.664px 0; /* Increased by 8% */
+      padding: 11.664px 0;
     }
     select, table, input, textarea, button {
       background: #222;
@@ -69,16 +76,66 @@
       margin-bottom: 10px;
       border-radius: 12px;
     }
-    table { border-collapse: collapse; margin-top: 10px; }
+    table { 
+      border-collapse: collapse; 
+      margin-top: 10px; 
+      width: 100%;
+    }
     th, td {
       padding: 8px;
       text-align: right;
       border-bottom: 1px solid #444;
     }
-    button { background: #00b894; cursor: pointer; }
-    .scrollable { max-height: 400px; overflow-y: auto; }
+    button { 
+      background: #00b894; 
+      cursor: pointer; 
+      transition: opacity 0.3s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .scrollable { 
+      max-height: 300px; 
+      overflow-y: auto;
+      margin-top: 15px;
+    }
     .tradingview-widget-container {
+      width: 100%;
+      height: 450px;
       margin-bottom: 20px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    #tradingview-widget {
+      width: 100%;
+      height: 100%;
+    }
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100px;
+    }
+    .loading:after {
+      content: " ";
+      display: block;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      border-color: #fff transparent #fff transparent;
+      animation: loading 1.2s linear infinite;
+    }
+    @keyframes loading {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .error-message {
+      color: #ff6b6b;
+      padding: 10px;
+      background: #2d2d2d;
+      border-radius: 8px;
+      margin: 10px 0;
     }
   </style>
 </head>
@@ -102,15 +159,86 @@
     let currentTab = 0;
     const loadedTabs = {};
     const tabEls = document.querySelectorAll('.tab-content');
+    let tradingViewScriptLoaded = false;
+
+    // تابع بارگذاری اسکریپت TradingView
+    function loadTradingViewScript(callback) {
+      if (typeof TradingView !== 'undefined') {
+        tradingViewScriptLoaded = true;
+        if (callback) callback();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/tv.js';
+      script.onload = () => {
+        tradingViewScriptLoaded = true;
+        if (callback) callback();
+      };
+      script.onerror = () => {
+        console.error('Failed to load TradingView script');
+        document.getElementById('tradingview-widget')?.insertAdjacentHTML('afterend', 
+          '<p class="error-message">خطا د�� بارگذاری نمودار. لطفاً اتصال اینترنت را بررسی کنید.</p>');
+      };
+      document.body.appendChild(script);
+    }
+
+    // تابع ایجاد ویجت TradingView
+    function initializeTradingViewWidget(symbol = 'BTC') {
+      if (!tradingViewScriptLoaded) {
+        loadTradingViewScript(() => initializeTradingViewWidget(symbol));
+        return;
+      }
+
+      const widgetContainer = document.getElementById("tradingview-widget");
+      if (!widgetContainer) return;
+      
+      widgetContainer.innerHTML = '<div class="loading"></div>';
+      
+      try {
+        new TradingView.widget({
+          "autosize": false,
+          "width": "100%",
+          "height": 450,
+          "symbol": `BINANCE:${symbol}USDT`,
+          "interval": "1D",
+          "timezone": "Asia/Tehran",
+          "theme": "dark",
+          "style": "1",
+          "locale": "fa_IR",
+          "toolbar_bg": "#1e1e1e",
+          "enable_publishing": false,
+          "hide_top_toolbar": false,
+          "hide_side_toolbar": false,
+          "allow_symbol_change": true,
+          "container_id": "tradingview-widget",
+          "studies": [
+            "MACD@tv-basicstudies",
+            "RSI@tv-basicstudies",
+            "Volume@tv-basicstudies"
+          ]
+        });
+      } catch (error) {
+        console.error('TradingView error:', error);
+        widgetContainer.innerHTML = '<p class="error-message">خطا در نمایش نمودار</p>';
+      }
+    }
+
+    function updateTradingViewWidget(symbol) {
+      initializeTradingViewWidget(symbol);
+    }
 
     function switchTab(index) {
       if (index === currentTab) return;
+      
       document.querySelectorAll('.tab').forEach((tab, i) =>
         tab.classList.toggle("active", i === index)
       );
+      
       tabEls[currentTab].classList.remove("active");
       tabEls[index].classList.add("active");
       currentTab = index;
+      
       if (!loadedTabs[index]) {
         loadTab(index);
         loadedTabs[index] = true;
@@ -119,180 +247,470 @@
 
     function loadTab(index) {
       const contentEl = document.getElementById(`tab-${index}`);
+      
       if (index === 0) {
-        contentEl.innerHTML = `
-          <label>انتخاب ارز:</label>
-          <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
-            <option value="BTC" selected>بیت‌کوین</option>
-          </select>
-          <div class="tradingview-widget-container">
-            <div id="tradingview-widget"></div>
-            <div class="tradingview-widget-copyright">
-              <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
-                <span class="blue-text">Track all markets on TradingView</span>
-              </a>
-            </div>
-          </div>
-          <p>در حال بارگذاری...</p>`;
-        initializeTradingViewWidget("BTC");
-        fetch("https://mnymaker-production.up.railway.app/crypto")
+        loadPriceTab(contentEl);
+      } else if (index === 1) {
+        loadNewsTab(contentEl);
+      } else if (index === 2) {
+        loadReferralTab(contentEl);
+      } else if (index === 3) {
+        loadContractTab(contentEl);
+      } else if (index === 4) {
+        loadWalletTab(contentEl);
+      }
+    }
+
+    function loadPriceTab(contentEl) {
+      contentEl.innerHTML = `
+        <label>انتخاب ارز:</label>
+        <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
+          <option value="BTC" selected>بیت‌کوین</option>
+          <option value="ETH">اتریوم</option>
+          <option value="BNB">بایننس کوین</option>
+        </select>
+        <div class="tradingview-widget-container">
+          <div id="tradingview-widget"></div>
+        </div>
+        <div id="crypto-table-container" class="scrollable">
+          <p>در حال دریافت اطلاعات بازار...</p>
+        </div>`;
+      
+      initializeTradingViewWidget("BTC");
+      
+      // دریافت اطلاعات ارزها
+      fetch("https://mnymaker-production.up.railway.app/crypto")
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          if (data?.length > 0) {
+            const options = data.map(c => 
+              `<option value="${c.symbol}">${c.name}</option>`
+            ).join("");
+            
+            const tableRows = data.map(c => `
+              <tr>
+                <td>${c.name}</td>
+                <td>$${c.price}</td>
+                <td style="color:${c.change >= 0 ? "#26de81" : "#fc5c65"}">
+                  ${c.change >= 0 ? '▲' : '▼'} ${Math.abs(c.change).toFixed(2)}%
+                </td>
+              </tr>`
+            ).join("");
+
+            document.getElementById("currencySelect").innerHTML = `
+              <option value="BTC" selected>بیت‌کوین</option>
+              ${options}`;
+            
+            document.getElementById("crypto-table-container").innerHTML = `
+              <table>
+                <thead>
+                  <tr>
+                    <th>نام</th>
+                    <th>قیمت</th>
+                    <th>تغییر ۲۴h</th>
+                  </tr>
+                </thead>
+                <tbody>${tableRows}</tbody>
+              </table>`;
+          } else {
+            document.getElementById("crypto-table-container").innerHTML = 
+              '<p class="error-message">داده‌ای برای نمایش وجود ندارد</p>';
+          }
+        })
+        .catch(err => {
+          console.error("Error fetching crypto data:", err);
+          document.getElementById("crypto-table-container").innerHTML = 
+            '<p class="error-message">خطا در دریافت اطلاعات بازار</p>';
+        });
+    }
+
+    function loadNewsTab(contentEl) {
+      contentEl.innerHTML = '<div class="loading"></div>';
+      
+      fetch("https://amyrgit-production.up.railway.app/news")
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
+        .then(news => {
+          if (news?.length > 0) {
+            contentEl.innerHTML = news.map(item => `
+              <div class="news-item" style="
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #333;
+              ">
+                <img src="${item.image || 'https://via.placeholder.com/300x150?text=No+Image'}" 
+                  style="
+                    width: 100%;
+                    border-radius: 8px;
+                    margin-bottom: 10px;
+                  "
+                  onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'"
+                />
+                <h3 style="margin: 10px 0;">${item.title}</h3>
+                <p style="color: #aaa; margin-bottom: 10px;">${item.summary}</p>
+                <a href="${item.link}" target="_blank" style="
+                  display: inline-block;
+                  padding: 8px 15px;
+                  background: #00b894;
+                  color: white;
+                  border-radius: 8px;
+                  text-decoration: none;
+                ">
+                  ادامه خبر
+                </a>
+              </div>`
+            ).join("");
+          } else {
+            contentEl.innerHTML = '<p class="error-message">اخبار جدیدی یافت نشد</p>';
+          }
+        })
+        .catch(() => {
+          contentEl.innerHTML = '<p class="error-message">خطا در دریافت اخبار</p>';
+        });
+    }
+
+    function loadReferralTab(contentEl) {
+      loadTelegramUser(userId => {
+        contentEl.innerHTML = '<div class="loading"></div>';
+        
+        fetch(`https://mnymaker-production.up.railway.app/referral/join?user_id=${userId}`)
           .then(res => {
-            if (!res.ok) {
-              throw new Error(`HTTP error! status: ${res.status}`);
-            }
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
           })
           .then(data => {
-            if (data && data.length > 0) {
-              const options = data.map(c => `<option value="${c.symbol}">${c.name}</option>`).join("");
-              const tableRows = data.map(c => `
-                <tr>
-                  <td>${c.name}</td>
-                  <td>$${c.price}</td>
-                  <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
-                </tr>`).join("");
-
-              document.getElementById("currencySelect").innerHTML = `
-                <option value="BTC" selected>بیت‌کوین</option>
-                ${options}`;
+            if (data.ref_code) {
               contentEl.innerHTML = `
-                <label>انتخاب ارز:</label>
-                <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
-                  <option value="BTC" selected>بیت‌کوین</option>
-                  ${options}
-                </select>
-                <div class="tradingview-widget-container">
-                  <div id="tradingview-widget"></div>
-                  <div class="tradingview-widget-copyright">
-                    <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
-                      <span class="blue-text">Track all markets on TradingView</span>
-                    </a>
-                  </div>
+                <h2 style="margin-bottom: 15px;">سیستم معرفی دوستان</h2>
+                
+                <div style="
+                  background: #1e1e1e;
+                  padding: 15px;
+                  border-radius: 12px;
+                  margin-bottom: 20px;
+                ">
+                  <p style="margin: 0 0 10px 0;">لینک دعوت شما:</p>
+                  <input 
+                    value="https://t.me/MnyMakr_BOT?start=${data.ref_code}" 
+                    readonly
+                    style="
+                      background: #333;
+                      color: white;
+                      border: none;
+                      padding: 10px;
+                      width: 100%;
+                      border-radius: 8px;
+                      margin-bottom: 10px;
+                    "
+                  />
+                  <button onclick="copyReferralLink()" style="
+                    background: #00b894;
+                    color: white;
+                    border: none;
+                    padding: 10px;
+                    width: 100%;
+                    border-radius: 8px;
+                    cursor: pointer;
+                  ">
+                    کپی لینک
+                  </button>
                 </div>
-                <div class="scrollable">
-                  <table>
-                    <thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead>
-                    <tbody>${tableRows}</tbody>
-                  </table>
+                
+                <div style="
+                  background: #1e1e1e;
+                  padding: 15px;
+                  border-radius: 12px;
+                  margin-bottom: 20px;
+                ">
+                  <p style="margin: 0 0 5px 0; font-size: 18px;">
+                    امتیاز شما: <strong>${data.points || 0}</strong>
+                  </p>
+                  <p style="margin: 0; color: #aaa;">
+                    هر دعوت موفق: +10 امتیاز
+                  </p>
+                </div>
+                
+                <div style="
+                  background: #1e1e1e;
+                  padding: 15px;
+                  border-radius: 12px;
+                ">
+                  <h3 style="margin-top: 0;">افراد دعوت‌شده:</h3>
+                  ${data.invited?.length > 0 ? 
+                    `<ul style="padding-right: 20px;">${
+                      data.invited.map(id => `<li style="margin-bottom: 5px;">${id}</li>`).join("")
+                    }</ul>` : 
+                    '<p style="color: #aaa;">هنوز کسی را دعوت نکرده‌اید</p>'
+                  }
                 </div>`;
-              initializeTradingViewWidget("BTC");
             } else {
-              contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
+              contentEl.innerHTML = '<p class="error-message">خطا در دریافت اطلاعات معرفی</p>';
             }
           })
-          .catch(err => {
-            console.error("Error fetching crypto data:", err);
-            contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>";
+          .catch(() => {
+            contentEl.innerHTML = '<p class="error-message">خطا در ارتباط با سرور</p>';
           });
-      }
-
-      if (index === 1) {
-        contentEl.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
-        fetch("https://amyrgit-production.up.railway.app/news")
-          .then(res => res.json())
-          .then(news => {
-            if (news && news.length > 0) {
-              const html = news.map(item => `
-                <div style="margin-bottom:20px;border-bottom:1px solid #444;padding-bottom:10px">
-                  <img src="${item.image}" style="max-width:100%;border-radius:12px" />
-                  <h3>${item.title}</h3>
-                  <p>${item.summary}</p>
-                  <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
-                </div>`).join("");
-              contentEl.innerHTML = html;
-            } else {
-              contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
-            }
-          })
-          .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اخبار!</p>");
-      }
-
-      if (index === 2) {
-        loadTelegramUser(userId => {
-          contentEl.innerHTML = "<p>در حال دریافت اطلاعات...</p>";
-          fetch(`https://mnymaker-production.up.railway.app/referral/join?user_id=${userId}`)
-            .then(res => res.json())
-            .then(data => {
-              if (data.ref_code) {
-                const html = `
-                  <h2>لینک دعوت شما</h2>
-                  <input value="https://t.me/MnyMakr_BOT?start=${data.ref_code}" readonly />
-                  <p>امتیاز شما: ${data.points}</p>
-                  <p>افراد دعوت‌شده:</p>
-                  <ul>${data.invited.map(id => `<li>${id}</li>`).join("")}</ul>`;
-                contentEl.innerHTML = html;
-              } else contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
-            })
-            .catch(() => contentEl.innerHTML = "<p>خطا در دریافت داده‌ها!</p>");
-        });
-      }
-
-      if (index === 3) {
-        loadTelegramUser(userId => {
-          const html = `
-            <h2>ثبت قرارداد جدید</h2>
-            <label>مبلغ (USDT):</label>
-            <input type="number" id="amount" />
-            <label>تاریخ پایان:</label>
-            <select id="due">${[7, 14, 21, 28].map(d => `<option value="${d}">${d} روز</option>`).join("")}</select>
-            <label>توضیحات:</label>
-            <textarea id="desc" rows="3"></textarea>
-            <button onclick="submitContract('${userId}')">ثبت قرارداد</button>
-            <div id="contracts"></div>`;
-          contentEl.innerHTML = html;
-        });
-      }
-
-      if (index === 4) {
-        loadTelegramUser(userId => {
-          contentEl.innerHTML = "<p>در حال دریافت کیف پول...</p>";
-          fetch(`https://walletapp-production-ccf1.up.railway.app/wallet?user_id=${userId}`)
-            .then(res => res.json())
-            .then(wallet => {
-              const html = wallet ? `
-                <h2>کیف پول شما</h2>
-                <p><strong>موجودی:</strong> ${wallet.balance} امتیاز</p>
-                <p><strong>تاریخ ایجاد:</strong> ${new Date(wallet.created_at).toLocaleString("fa-IR")}</p>` : "<p>خطا در دریافت کیف پول.</p>";
-              contentEl.innerHTML = html;
-            })
-            .catch(() => contentEl.innerHTML = "<p>خطا در ارتباط با سرور.</p>");
-        });
-      }
-    }
-
-    function initializeTradingViewWidget(symbol) {
-      const widgetContainer = document.getElementById("tradingview-widget");
-      widgetContainer.innerHTML = ""; // Clear previous widget
-      new TradingView.widget({
-        interval: "1m",
-        width: "100%",
-        isTransparent: false,
-        height: 400, // Set a fixed height for the widget
-        symbol: symbol,
-        showIntervalTabs: true,
-        displayMode: "single",
-        locale: "fa",
-        colorTheme: "dark",
-        container_id: "tradingview-widget"
       });
     }
 
-    function updateTradingViewWidget(symbol) {
-      initializeTradingViewWidget(symbol);
+    function loadContractTab(contentEl) {
+      loadTelegramUser(userId => {
+        contentEl.innerHTML = `
+          <h2 style="margin-bottom: 20px;">مدیریت قراردادها</h2>
+          
+          <div style="
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+          ">
+            <h3 style="margin-top: 0;">ثبت قرارداد جدید</h3>
+            
+            <label>مبلغ (USDT):</label>
+            <input 
+              type="number" 
+              id="amount" 
+              placeholder="مثال: 100"
+            />
+            
+            <label>تاریخ پایان:</label>
+            <select id="due">
+              ${[7, 14, 21, 28].map(d => `
+                <option value="${d}">${d} روز</option>
+              `).join("")}
+            </select>
+            
+            <label>ت��ضیحات:</label>
+            <textarea 
+              id="desc" 
+              rows="3" 
+              placeholder="توضیحات قرارداد (اختیاری)"
+            ></textarea>
+            
+            <button onclick="submitContract('${userId}')">
+              ثبت قرارداد
+            </button>
+          </div>
+          
+          <div id="contracts-list" style="
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 12px;
+          ">
+            <h3 style="margin-top: 0;">قراردادهای فعال</h3>
+            <p>در حال دریافت لیست قراردادها...</p>
+          </div>`;
+          
+        // دریافت لیست قراردادها
+        fetch(`https://mnymaker-production.up.railway.app/contracts?user_id=${userId}`)
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+          })
+          .then(contracts => {
+            const contractsList = document.getElementById("contracts-list");
+            
+            if (contracts?.length > 0) {
+              contractsList.innerHTML = `
+                <h3 style="margin-top: 0;">قراردادهای فعال</h3>
+                <div class="scrollable">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>مبلغ</th>
+                        <th>تاریخ پایان</th>
+                        <th>وضعیت</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${contracts.map(c => `
+                        <tr>
+                          <td>${c.amount} USDT</td>
+                          <td>${new Date(c.due_date).toLocaleDateString('fa-IR')}</td>
+                          <td style="color: ${
+                            c.status === 'active' ? '#26de81' : 
+                            c.status === 'pending' ? '#f7b731' : '#fc5c65'
+                          }">
+                            ${
+                              c.status === 'active' ? 'فعال' : 
+                              c.status === 'pending' ? 'در انتظار' : 'پایان یافته'
+                            }
+                          </td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>`;
+            } else {
+              contractsList.innerHTML = '<p>قرارداد فعالی وجود ندارد</p>';
+            }
+          })
+          .catch(() => {
+            document.getElementById("contracts-list").innerHTML = 
+              '<p class="error-message">خطا در دریافت قراردادها</p>';
+          });
+      });
+    }
+
+    function loadWalletTab(contentEl) {
+      loadTelegramUser(userId => {
+        contentEl.innerHTML = '<div class="loading"></div>';
+        
+        fetch(`https://walletapp-production-ccf1.up.railway.app/wallet?user_id=${userId}`)
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+          })
+          .then(wallet => {
+            contentEl.innerHTML = `
+              <h2 style="margin-bottom: 20px;">کیف پول شما</h2>
+              
+              <div style="
+                background: #1e1e1e;
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+                text-align: center;
+              ">
+                <p style="
+                  font-size: 14px;
+                  color: #aaa;
+                  margin-bottom: 5px;
+                ">موجودی فعلی</p>
+                
+                <p style="
+                  font-size: 32px;
+                  font-weight: bold;
+                  margin: 0;
+                  color: #00b894;
+                ">${wallet?.balance || 0} <span style="font-size: 16px;">امتیاز</span></p>
+              </div>
+              
+              <div style="
+                background: #1e1e1e;
+                padding: 15px;
+                border-radius: 12px;
+                margin-bottom: 15px;
+              ">
+                <h3 style="margin-top: 0;">تراکنش‌های اخیر</h3>
+                
+                ${wallet?.transactions?.length > 0 ? `
+                  <div class="scrollable">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>مبلغ</th>
+                          <th>نوع</th>
+                          <th>تاریخ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${wallet.transactions.map(t => `
+                          <tr>
+                            <td style="color: ${
+                              t.type === 'deposit' ? '#26de81' : '#fc5c65'
+                            }">
+                              ${t.type === 'deposit' ? '+' : '-'}${t.amount}
+                            </td>
+                            <td>${
+                              t.type === 'deposit' ? 'واریز' : 
+                              t.type === 'withdraw' ? 'برداشت' : 'سایر'
+                            }</td>
+                            <td>${new Date(t.date).toLocaleDateString('fa-IR')}</td>
+                          </tr>
+                        `).join("")}
+                      </tbody>
+                    </table>
+                  </div>
+                ` : '<p>تراکنشی یافت نشد</p>'}
+              </div>
+              
+              <div style="display: flex; gap: 10px;">
+                <button style="flex: 1; background: #00b894;">
+                  واریز
+                </button>
+                <button style="flex: 1; background: #fc5c65;">
+                  برداشت
+                </button>
+              </div>`;
+          })
+          .catch(() => {
+            contentEl.innerHTML = '<p class="error-message">خطا در دریافت اطلاعات کیف پول</p>';
+          });
+      });
     }
 
     function loadTelegramUser(callback) {
       if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
         callback(Telegram.WebApp.initDataUnsafe.user.id);
       } else {
-        document.getElementById(`tab-${currentTab}`).innerHTML = "<p>این قابلیت تنها در محیط تلگرام فعال است.</p>";
+        // حالت آزمایشی - فقط برای توسعه
+        const testUserId = Math.floor(Math.random() * 1000000);
+        console.warn('Running in test mode with random user ID');
+        callback(testUserId);
+        // در حالت واقعی:
+        // document.getElementById(`tab-${currentTab}`).innerHTML = 
+        //   '<p class="error-message">این قابلیت تنها در محیط تلگرام فعال است</p>';
       }
     }
 
+    function copyReferralLink() {
+      const input = document.querySelector('#tab-2 input');
+      if (input) {
+        input.select();
+        document.execCommand('copy');
+        alert('لینک دعوت کپی شد!');
+      }
+    }
+
+    function submitContract(userId) {
+      const amount = document.getElementById('amount').value;
+      const due = document.getElementById('due').value;
+      const desc = document.getElementById('desc').value;
+      
+      if (!amount || isNaN(amount)) {
+        alert('لطفاً مبلغ معتبر وارد کنید');
+        return;
+      }
+      
+      const contractsList = document.getElementById('contracts-list');
+      contractsList.innerHTML = '<p>در حال ثبت قرارداد...</p>';
+      
+      // اینجا باید درخواست به سرور ارسال شود
+      setTimeout(() => {
+        contractsList.innerHTML = `
+          <p style="color: #26de81;">قرارداد با موفقیت ثبت شد!</p>
+          <div class="scrollable">
+            <table>
+              <thead>
+                <tr>
+                  <th>مبلغ</th>
+                  <th>تاریخ پایان</th>
+                  <th>وضعیت</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>${amount} USDT</td>
+                  <td>${new Date(Date.now() + due * 24 * 60 * 60 * 1000).toLocaleDateString('fa-IR')}</td>
+                  <td style="color: #f7b731;">در انتظار تایید</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>`;
+      }, 1500);
+    }
+
+    // بارگذاری اولیه
     window.onload = () => {
+      loadTradingViewScript();
       loadTab(0);
     };
   </script>
 </body>
 </html>
-``` 
