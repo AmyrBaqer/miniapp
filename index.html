@@ -25,6 +25,7 @@
       text-align: center;
       display: none;
       overflow-y: auto;
+      position: relative;
     }
     .tab-content.active { display: block; }
     .tabs {
@@ -37,7 +38,7 @@
       flex-direction: row-reverse;
       border-top: 1px solid #333;
       z-index: 1000;
-      padding: 10.8px 0; /* Increased by 8% */
+      padding: 0.8px 0; /* Increased by 8% */
     }
     .tab {
       flex: 1;
@@ -45,19 +46,19 @@
       padding: 10px 0;
       cursor: pointer;
       color: #aaa;
-      font-size: 12px;
+      font-size: 12.96px; /* Increased by 8% */
       transition: background 0.3s, color 0.3s;
       border-radius: 12px 12px 0 0;
     }
     .tab i {
       display: block;
-      font-size: 19.44px; /* Increased by 8% */
+      font-size: 20.9952px; /* Increased by 8% */
       margin-bottom: 2px;
     }
     .tab.active {
       background: #00b894;
       color: #fff;
-      padding: 10.8px 0; /* Match the increased size */
+      padding: 11.664px 0; /* Increased by 8% */
     }
     select, table, input, textarea, button {
       background: #222;
@@ -76,6 +77,9 @@
     }
     button { background: #00b894; cursor: pointer; }
     .scrollable { max-height: 400px; overflow-y: auto; }
+    .tradingview-widget-container {
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -116,7 +120,21 @@
     function loadTab(index) {
       const contentEl = document.getElementById(`tab-${index}`);
       if (index === 0) {
-        contentEl.innerHTML = "<p>در حال بارگذاری...</p>";
+        contentEl.innerHTML = `
+          <label>انتخاب ارز:</label>
+          <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
+            <option value="BTC" selected>بیت‌کوین</option>
+          </select>
+          <div class="tradingview-widget-container">
+            <div id="tradingview-widget"></div>
+            <div class="tradingview-widget-copyright">
+              <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
+                <span class="blue-text">Track all markets on TradingView</span>
+              </a>
+            </div>
+          </div>
+          <p>در حال بارگذاری...</p>`;
+        initializeTradingViewWidget("BTC");
         fetch("https://mnymaker-production.up.railway.app/crypto")
           .then(res => {
             if (!res.ok) {
@@ -134,15 +152,30 @@
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
                 </tr>`).join("");
 
+              document.getElementById("currencySelect").innerHTML = `
+                <option value="BTC" selected>بیت‌کوین</option>
+                ${options}`;
               contentEl.innerHTML = `
                 <label>انتخاب ارز:</label>
-                <select id="currencySelect">${options}</select>
+                <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
+                  <option value="BTC" selected>بیت‌کوین</option>
+                  ${options}
+                </select>
+                <div class="tradingview-widget-container">
+                  <div id="tradingview-widget"></div>
+                  <div class="tradingview-widget-copyright">
+                    <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
+                      <span class="blue-text">Track all markets on TradingView</span>
+                    </a>
+                  </div>
+                </div>
                 <div class="scrollable">
                   <table>
                     <thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead>
                     <tbody>${tableRows}</tbody>
                   </table>
                 </div>`;
+              initializeTradingViewWidget("BTC");
             } else {
               contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
             }
@@ -227,6 +260,27 @@
       }
     }
 
+    function initializeTradingViewWidget(symbol) {
+      const widgetContainer = document.getElementById("tradingview-widget");
+      widgetContainer.innerHTML = ""; // Clear previous widget
+      new TradingView.widget({
+        interval: "1m",
+        width: "100%",
+        isTransparent: false,
+        height: 400, // Set a fixed height for the widget
+        symbol: symbol,
+        showIntervalTabs: true,
+        displayMode: "single",
+        locale: "fa",
+        colorTheme: "dark",
+        container_id: "tradingview-widget"
+      });
+    }
+
+    function updateTradingViewWidget(symbol) {
+      initializeTradingViewWidget(symbol);
+    }
+
     function loadTelegramUser(callback) {
       if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
         callback(Telegram.WebApp.initDataUnsafe.user.id);
@@ -241,3 +295,4 @@
   </script>
 </body>
 </html>
+``` 
