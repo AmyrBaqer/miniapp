@@ -119,7 +119,6 @@
     <div class="tab" onclick="switchTab(3)"><i class="fas fa-file-signature"></i>قرارداد</div>
     <div class="tab" onclick="switchTab(4)"><i class="fas fa-wallet"></i>کیف پول</div>
   </div>
-
   <script>
     let currentTab = 0;
     const loadedTabs = {};
@@ -168,7 +167,6 @@
             initializeChart(data[0].symbol); // Initial chart for the first currency
           })
           .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
-
         document.getElementById("currencySelect").addEventListener("change", (e) => {
           const selectedSymbol = e.target.value;
           initializeChart(selectedSymbol);
@@ -244,7 +242,6 @@
         });
       }
     }
-
     function initializeChart(symbol) {
       new TradingView.widget({
         autosize: true,
@@ -260,7 +257,6 @@
         fullscreen: true
       });
     }
-
     function loadTelegramUser(callback) {
       if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
         callback(Telegram.WebApp.initDataUnsafe.user.id);
@@ -268,7 +264,6 @@
         document.getElementById(`tab-${currentTab}`).innerHTML = "<p>این قابلیت تنها در محیط تلگرام فعال است.</p>";
       }
     }
-
     window.onload = () => {
       loadTab(0);
     };
