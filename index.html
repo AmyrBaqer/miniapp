@@ -161,7 +161,7 @@
                   <td>${c.name}</td>
                   <td>$${c.price}</td>
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
-                </tr>`).join("") + "</tbody></table></div>`;
+                </tr>`).join("") + "</tbody></table></div>";
             contentEl.innerHTML = table;
             saveContent(0, table);
             initializeChart(data[0].symbol); // Initial chart for the first currency
