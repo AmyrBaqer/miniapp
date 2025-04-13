@@ -109,6 +109,7 @@
         loadedTabs[index] = true;
       }
     }
+
     function loadTab(index) {
       const contentEl = document.getElementById(`tab-${index}`);
       if (index === 0) {
@@ -125,66 +126,46 @@
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
                 </tr>`).join("");
               contentEl.innerHTML = `
-                <label>انتخاب ارز:</label>
+                <label>انتخاب ارز برای نمایش چارت:</label>
                 <select id="currencySelect">${options}</select>
                 <div id="chartContainer" style="margin: 20px 0; height: 300px;"></div>
                 <div class="scrollable">
                   <table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>${tableRows}</tbody></table>
                 </div>`;
-              const defaultSymbol = data[0].symbol;
+              const defaultSymbol = "TON";
               renderChart(defaultSymbol);
+              document.getElementById("currencySelect").value = defaultSymbol;
               document.getElementById("currencySelect").addEventListener("change", (e) => {
                 const selectedSymbol = e.target.value;
                 renderChart(selectedSymbol);
               });
               function renderChart(symbol) {
-  const chartId = `chart_${Date.now()}`;
-  const container = document.getElementById("chartContainer");
-  container.innerHTML = `<div id="${chartId}" style="height: 100%; width: 100%"></div>`;
-  new TradingView.widget({
-    "container_id": chartId,
-    "width": "100%",
-    "height": 300,
-    "symbol": `BINANCE:${symbol}USDT`,
-    "interval": "30",
-    "timezone": "Asia/Tehran",
-    "theme": "dark",
-    "style": "1",
-    "locale": "fa",
-    "hide_legend": true,
-    "allow_symbol_change": false,
-    "hide_top_toolbar": true,
-    "hide_side_toolbar": true,
-    "autosize": true
-  });
-}
+                document.getElementById("chartContainer").innerHTML = "";
+                new TradingView.widget({
+                  "container_id": "chartContainer",
+                  "width": "100%",
+                  "height": 300,
+                  "symbol": `BINANCE:${symbol}USDT`,
+                  "interval": "30",
+                  "timezone": "Asia/Tehran",
+                  "theme": "dark",
+                  "style": "1",
+                  "locale": "fa",
+                  "hide_legend": true,
+                  "allow_symbol_change": false,
+                  "hide_top_toolbar": true,
+                  "hide_side_toolbar": true,
+                  "autosize": true
+                });
+              }
             } else {
               contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
             }
           })
           .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
       }
-      if (index === 1) {
-        contentEl.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
-        fetch("https://amyrgit-production.up.railway.app/news")
-          .then(res => res.json())
-          .then(news => {
-            if (news && news.length > 0) {
-              const html = news.map(item => `
-                <div style="margin-bottom:20px;border-bottom:1px solid #444;padding-bottom:10px">
-                  <img src="${item.image}" style="max-width:100%;border-radius:12px" />
-                  <h3>${item.title}</h3>
-                  <p>${item.summary}</p>
-                  <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
-                </div>`).join("");
-              contentEl.innerHTML = html;
-            } else {
-              contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
-            }
-          })
-          .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اخبار!</p>");
-      }
-      if (index === 2) {
+
+if (index === 2) {
         loadTelegramUser(userId => {
           contentEl.innerHTML = "<p>در حال دریافت اطلاعات...</p>";
           fetch(`https://mnymaker-production.up.railway.app/referral/join?user_id=${userId}`)
@@ -203,6 +184,7 @@
             .catch(() => contentEl.innerHTML = "<p>خطا در دریافت داده‌ها!</p>");
         });
       }
+
       if (index === 3) {
         loadTelegramUser(userId => {
           const html = `
@@ -218,6 +200,7 @@
           contentEl.innerHTML = html;
         });
       }
+
       if (index === 4) {
         loadTelegramUser(userId => {
           contentEl.innerHTML = "<p>در حال دریافت کیف پول...</p>";
@@ -234,6 +217,7 @@
         });
       }
     }
+
     function loadTelegramUser(callback) {
       if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
         callback(Telegram.WebApp.initDataUnsafe.user.id);
@@ -241,36 +225,8 @@
         document.getElementById(`tab-${currentTab}`).innerHTML = "<p>این قابلیت تنها در محیط تلگرام فعال است.</p>";
       }
     }
-    function submitContract(userId) {
-      const amount = document.getElementById("amount").value;
-      const due = document.getElementById("due").value;
-      const desc = document.getElementById("desc").value;
-      if (!amount || !desc) {
-        alert("لطفاً همه فیلدها را کامل کنید.");
-        return;
-      }
-      fetch("https://mnymaker-production.up.railway.app/contracts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId,
-          amount,
-          due_days: due,
-          description: desc
-        })
-      })
-      .then(res => res.json())
-      .then(result => {
-        if (result.success) {
-          alert("قرارداد با موفقیت ثبت شد.");
-          document.getElementById("amount").value = "";
-          document.getElementById("desc").value = "";
-        } else {
-          alert("خطا در ثبت قرارداد.");
-        }
-      })
-      .catch(() => alert("خطا در ارتباط با سرور."));
-    }
+
+
     window.onload = () => {
       loadTab(0);
     };
