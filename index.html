@@ -6,7 +6,7 @@
   <title>مینی‌اپ ارز دیجیتال</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <script type="text/javascript" src="https://cdn.tradingview.com/tv.js"></script>
+  <script type="text/javascript" src="https://cdn.tradingview.com/tv.js"></script> <!-- بارگذاری کتابخانه TradingView -->
   <style>
     * {
       box-sizing: border-box;
@@ -145,12 +145,7 @@
       if (index === 0) {
         contentEl.innerHTML = "<p>در حال بارگذاری...</p>";
         fetch("https://mnymaker-production.up.railway.app/crypto")
-          .then(res => {
-            if (!res.ok) {
-              throw new Error("خطا در ارتباط با سرور!");
-            }
-            return res.json();
-          })
+          .then(res => res.json())
           .then(data => {
             if (data && data.length > 0) {
               const options = data.map(c => `<option value="${c.symbol}">${c.name}</option>`).join("");
@@ -172,9 +167,7 @@
               contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
             }
           })
-          .catch(error => {
-            contentEl.innerHTML = `<p>خطا: ${error.message}</p>`;
-          });
+          .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
         
         document.getElementById("currencySelect").addEventListener("change", (e) => {
           const selectedSymbol = e.target.value;
