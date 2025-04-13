@@ -1,247 +1,239 @@
 <!DOCTYPE html>
 <html lang="fa">
-  <head>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <meta charset="UTF-8" />
-    <title>مینی‌اپ ارز دیجیتال</title>
-    <style>
-      body {
-        font-family: sans-serif;
-        padding: 20px;
-        background: #121212;
-        color: #fff;
-      }
-      .tabs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-      }
-      .tab {
-        padding: 10px 20px;
-        border-radius: 8px;
-        background: #333;
-        cursor: pointer;
-      }
-      .tab.active {
-        background: #00b894;
-      }
-      .content {
-        border-top: 1px solid #555;
-        padding-top: 20px;
-      }
-      select,
-      table,
-      input,
-      textarea {
-        background: #222;
-        color: #fff;
-        border: none;
-        padding: 10px;
-        width: 100%;
-        margin-bottom: 10px;
-        border-radius: 8px;
-      }
-      table {
-        border-collapse: collapse;
-        margin-top: 10px;
-      }
-      th,
-      td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #444;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>مینی‌اپ ارز دیجیتال</h1>
-    <div class="tabs">
-      <div class="tab active" onclick="showTab(0)">قیمت ارز</div>
-      <div class="tab" onclick="showTab(1)">اخبار</div>
-      <div class="tab" onclick="showTab(2)">رفرال ها</div>
-      <div class="tab" onclick="showTab(3)">قرارداد ها</div>
-      <div class="tab" onclick="showTab(4)">کیف پول</div>
-    </div>
-    <div class="content" id="tab-content">
-      <!-- محتوای تب‌ها اینجا میاد -->
-    </div>
-    <script>
-      let currentTab = 0;
-      const apiUrl = "https://mnymaker-production.up.railway.app/crypto";
-      function showTab(index) {
-        currentTab = index;
-        document.querySelectorAll(".tab").forEach((tab, i) => {
-          tab.classList.toggle("active", i === index);
-        });
-        const content = document.getElementById("tab-content");
+<head>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مینی‌اپ ارز دیجیتال</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #121212;
+      color: #fff;
+      padding-bottom: 70px;
+    }
+    .content {
+      padding: 20px;
+    }
+    .tabs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #1e1e1e;
+      display: flex;
+      border-top: 1px solid #333;
+      z-index: 1000;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 14px 0;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 14px;
+    }
+    .tab.active {
+      background: #00b894;
+      color: #fff;
+    }
+    select, table, input, textarea, button {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #444;
+    }
+    button {
+      background: #00b894;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="content" id="tab-content"></div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">قیمت</div>
+    <div class="tab" onclick="switchTab(1)">اخبار</div>
+    <div class="tab" onclick="switchTab(2)">رفرال</div>
+    <div class="tab" onclick="switchTab(3)">قرارداد</div>
+    <div class="tab" onclick="switchTab(4)">کیف پول</div>
+  </div>
 
-        if (index === 0) {
-          content.innerHTML = "<p>در حال بارگذاری...</p>";
-          fetch(apiUrl)
-            .then((res) => res.json())
-            .then((data) => {
-              let options = data
-                .map(
-                  (coin) => `<option value="${coin.id}">${coin.name}</option>`
-                )
-                .join("");
-              let table = `<table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>`;
-              table +=
-                data
-                  .map(
-                    (coin) => `
-              <tr>
-                <td>${coin.name}</td>
-                <td>$${coin.price}</td>
-                <td style="color:${coin.change >= 0 ? "lightgreen" : "salmon"}">
-                  ${coin.change.toFixed(2)}%
-                </td>
-              </tr>
-            `
-                  )
-                  .join("") + "</tbody></table>";
-              content.innerHTML = `
-                <label>انتخاب ارز:</label>
-                <select>${options}</select>
-                ${table}
-              `;
-            })
-            .catch(() => {
-              content.innerHTML = "<p>خطا در دریافت اطلاعات!</p>";
-            });
-        } else if (index === 1) {
-          content.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
-          fetch("https://amyrgit-production.up.railway.app/news")
-            .then((res) => res.json())
-            .then((news) => {
-              let html = news
-                .map(
-                  (item) => `
-        <div style="margin-bottom:20px;border-bottom:1px solid #444;padding-bottom:10px">
-          <img src="${item.image}" alt="${item.title}" style="max-width:100%;border-radius:12px;" />
-          <h3 style="margin:10px 0;">${item.title}</h3>
-          <p>${item.summary}</p>
-          <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
-        </div>
-      `
-                )
-                .join("");
-              content.innerHTML = html;
-            })
-            .catch(() => {
-              content.innerHTML = "<p>خطا در دریافت اخبار!</p>";
-            });
-        } else if (index === 2) {
-          loadTelegramUser((userId) => {
-            content.innerHTML = "<p>در حال دریافت اطلاعات...</p>";
-            fetch(`https://mnymaker-production.up.railway.app/referral/join?user_id=${userId}`)
-              .then((res) => res.json())
-              .then((data) => {
-                if (data && data.ref_code) {
-                  content.innerHTML = `
-            <h2>لینک دعوت شما</h2>
-            <p>با دعوت دوستان امتیاز بگیرید!</p>
-            <input value="https://t.me/MnyMakr_BOT?start=${data.ref_code}" readonly />
-            <p>امتیاز شما: ${data.points}</p>
-            <p>افراد دعوت‌شده:</p>
-            <ul>${data.invited.map((id) => `<li>${id}</li>`).join("")}</ul>
-          `;
-                } else {
-                  content.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
-                }
-              })
-              .catch(() => {
-                content.innerHTML = "<p>خطا در دریافت داده‌ها!</p>";
-              });
-          });
-        } else if (index === 3) {
-          loadTelegramUser((userId) => {
-            content.innerHTML = `
-              <h2>ثبت قرارداد جدید</h2>
-              <label>مبلغ (USDT):</label>
-              <input type="number" id="amount" />
-              <label>تاریخ پایان:</label>
-              <select id="due">
-                ${[7, 14, 21, 28].map(d => `<option value="${d}">${d} روز آینده</option>`).join("")}
-              </select>
-              <label>توضیحات:</label>
-              <textarea id="desc" rows="3"></textarea>
-              <button onclick="submitContract('${userId}')" style="padding:10px 20px;background:#00b894;color:#fff;border:none;border-radius:8px;cursor:pointer">ثبت قرارداد</button>
-              <div id="contracts"></div>
-            `;
-            loadContracts(userId);
-          });
-        } else if (index === 4) {
-          loadTelegramUser((userId) => {
-            content.innerHTML = "<p>در حال دریافت کیف پول...</p>";
-            fetch(`https://walletapp-production-ccf1.up.railway.app/wallet?user_id=${userId}`)
-              .then((res) => res.json())
-              .then((wallet) => {
-                if (wallet) {
-                  content.innerHTML = `
-                    <h2>کیف پول شما</h2>
-                    <p><strong>موجودی:</strong> ${wallet.balance} امتیاز</p>
-                    <p><strong>تاریخ ایجاد:</strong> ${new Date(wallet.created_at).toLocaleString("fa-IR")}</p>
-                  `;
-                } else {
-                  content.innerHTML = "<p>خطا در دریافت کیف پول.</p>";
-                }
-              })
-              .catch(() => {
-                content.innerHTML = "<p>خطا در ارتباط با سرور.</p>";
-              });
-          });
-        }
-      }
+  <script>
+    let currentTab = 0;
+    const loadedTabs = {};
+    const contentEl = document.getElementById("tab-content");
 
-      function loadTelegramUser(callback) {
-        if (window.Telegram && window.Telegram.WebApp) {
-          const userId = Telegram.WebApp.initDataUnsafe?.user?.id || "guest";
-          callback(userId);
-        } else {
-          document.getElementById("tab-content").innerHTML = "<p>این قابلیت تنها در محیط تلگرام قابل استفاده است.</p>";
-        }
+    function switchTab(index) {
+      currentTab = index;
+      document.querySelectorAll(".tab").forEach((tab, i) =>
+        tab.classList.toggle("active", i === index)
+      );
+      if (!loadedTabs[index]) {
+        loadTab(index);
+        loadedTabs[index] = true;
+      } else {
+        contentEl.innerHTML = sessionStorage.getItem("tab_" + index) || "";
       }
+    }
 
-      function submitContract(userId) {
-        const amount = document.getElementById("amount").value;
-        const due = document.getElementById("due").value;
-        const desc = document.getElementById("desc").value;
-        fetch("https://mnymaker-production.up.railway.app/contract/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_id: userId, amount, due_days: due, description: desc })
-        })
+    function saveContent(index, html) {
+      sessionStorage.setItem("tab_" + index, html);
+    }
+
+    function loadTab(index) {
+      if (index === 0) {
+        contentEl.innerHTML = "<p>در حال بارگذاری...</p>";
+        fetch("https://mnymaker-production.up.railway.app/crypto")
           .then(res => res.json())
-          .then(() => {
-            showTab(3);
+          .then(data => {
+            const options = data.map(c => `<option>${c.name}</option>`).join("");
+            const table = `<table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>` +
+              data.map(c => `
+                <tr>
+                  <td>${c.name}</td>
+                  <td>$${c.price}</td>
+                  <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
+                </tr>`).join("") + "</tbody></table>";
+            const html = `<label>انتخاب ارز:</label><select>${options}</select>${table}`;
+            contentEl.innerHTML = html;
+            saveContent(0, html);
           })
-          .catch(() => {
-            document.getElementById("tab-content").innerHTML += "<p>خطا در ثبت قرارداد!</p>";
-          });
+          .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
       }
 
-      function loadContracts(userId) {
-        fetch(`https://mnymaker-production.up.railway.app/contract/list?user_id=${userId}`)
+      if (index === 1) {
+        contentEl.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
+        fetch("https://amyrgit-production.up.railway.app/news")
           .then(res => res.json())
-          .then(contracts => {
-            let table = `<h2>لیست قراردادها</h2><table><thead><tr><th>مبلغ</th><th>تاریخ پایان</th><th>توضیحات</th><th>وضعیت</th></tr></thead><tbody>`;
-            table += contracts.map(c => `
+          .then(news => {
+            const html = news.map(item => `
+              <div style="margin-bottom:20px;border-bottom:1px solid #444;padding-bottom:10px">
+                <img src="${item.image}" style="max-width:100%;border-radius:12px" />
+                <h3>${item.title}</h3>
+                <p>${item.summary}</p>
+                <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
+              </div>`).join("");
+            contentEl.innerHTML = html;
+            saveContent(1, html);
+          })
+          .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اخبار!</p>");
+      }
+
+      if (index === 2) {
+        loadTelegramUser(userId => {
+          contentEl.innerHTML = "<p>در حال دریافت اطلاعات...</p>";
+          fetch(`https://mnymaker-production.up.railway.app/referral/join?user_id=${userId}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.ref_code) {
+                const html = `
+                  <h2>لینک دعوت شما</h2>
+                  <input value="https://t.me/MnyMakr_BOT?start=${data.ref_code}" readonly />
+                  <p>امتیاز شما: ${data.points}</p>
+                  <p>افراد دعوت‌شده:</p>
+                  <ul>${data.invited.map(id => `<li>${id}</li>`).join("")}</ul>`;
+                contentEl.innerHTML = html;
+                saveContent(2, html);
+              } else contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
+            })
+            .catch(() => contentEl.innerHTML = "<p>خطا در دریافت داده‌ها!</p>");
+        });
+      }
+
+      if (index === 3) {
+        loadTelegramUser(userId => {
+          const html = `
+            <h2>ثبت قرارداد جدید</h2>
+            <label>مبلغ (USDT):</label>
+            <input type="number" id="amount" />
+            <label>تاریخ پایان:</label>
+            <select id="due">${[7, 14, 21, 28].map(d => `<option value="${d}">${d} روز</option>`).join("")}</select>
+            <label>توضیحات:</label>
+            <textarea id="desc" rows="3"></textarea>
+            <button onclick="submitContract('${userId}')">ثبت قرارداد</button>
+            <div id="contracts"></div>`;
+          contentEl.innerHTML = html;
+          loadContracts(userId);
+        });
+      }
+
+      if (index === 4) {
+        loadTelegramUser(userId => {
+          contentEl.innerHTML = "<p>در حال دریافت کیف پول...</p>";
+          fetch(`https://walletapp-production-ccf1.up.railway.app/wallet?user_id=${userId}`)
+            .then(res => res.json())
+            .then(wallet => {
+              const html = wallet ? `
+                <h2>کیف پول شما</h2>
+                <p><strong>موجودی:</strong> ${wallet.balance} امتیاز</p>
+                <p><strong>تاریخ ایجاد:</strong> ${new Date(wallet.created_at).toLocaleString("fa-IR")}</p>` : "<p>خطا در دریافت کیف پول.</p>";
+              contentEl.innerHTML = html;
+              saveContent(4, html);
+            })
+            .catch(() => contentEl.innerHTML = "<p>خطا در ارتباط با سرور.</p>");
+        });
+      }
+    }
+
+    function loadTelegramUser(callback) {
+      if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
+        callback(Telegram.WebApp.initDataUnsafe.user.id);
+      } else {
+        contentEl.innerHTML = "<p>این قابلیت تنها در محیط تلگرام فعال است.</p>";
+      }
+    }
+
+    function submitContract(userId) {
+      const amount = document.getElementById("amount").value;
+      const due = document.getElementById("due").value;
+      const desc = document.getElementById("desc").value;
+      fetch("https://mnymaker-production.up.railway.app/contract/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, amount, due_days: due, description: desc })
+      })
+        .then(res => res.json())
+        .then(() => switchTab(3))
+        .catch(() => contentEl.innerHTML += "<p>خطا در ثبت قرارداد!</p>");
+    }
+
+    function loadContracts(userId) {
+      fetch(`https://mnymaker-production.up.railway.app/contract/list?user_id=${userId}`)
+        .then(res => res.json())
+        .then(contracts => {
+          const table = `
+            <h2>لیست قراردادها</h2>
+            <table><thead><tr><th>مبلغ</th><th>تاریخ</th><th>توضیحات</th><th>وضعیت</th></tr></thead><tbody>` +
+            contracts.map(c => `
               <tr>
                 <td>${c.amount} USDT</td>
                 <td>${c.due_date}</td>
                 <td>${c.description}</td>
                 <td>${c.status}</td>
-              </tr>
-            `).join("") + "</tbody></table>";
-            document.getElementById("contracts").innerHTML = table;
-          })
-          .catch(() => {
-            document.getElementById("contracts").innerHTML = "<p>خطا در دریافت لیست قراردادها!</p>";
-          });
-      }
+              </tr>`).join("") + "</tbody></table>";
+          document.getElementById("contracts").innerHTML = table;
+        })
+        .catch(() => document.getElementById("contracts").innerHTML = "<p>خطا در دریافت لیست قراردادها!</p>");
+    }
 
-      window.onload = () => showTab(0);
-    </script>
-  </body>
+    window.onload = () => switchTab(0);
+  </script>
+</body>
 </html>
