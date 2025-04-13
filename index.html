@@ -33,7 +33,7 @@
       top: 0;
       left: 100%;
       opacity: 0;
-      transition: left 0.3s ease-out, opacity 0.3s ease-out; /* انیمیشن ساده‌تر */
+      transition: left 0.3s ease-out, opacity 0.3s ease-out;
       padding: 16px;
       text-align: center;
     }
@@ -119,6 +119,7 @@
     <div class="tab" onclick="switchTab(3)"><i class="fas fa-file-signature"></i>قرارداد</div>
     <div class="tab" onclick="switchTab(4)"><i class="fas fa-wallet"></i>کیف پول</div>
   </div>
+
   <script>
     let currentTab = 0;
     const loadedTabs = {};
@@ -126,20 +127,20 @@
     
     function switchTab(index) {
       if (index === currentTab) return;
+      
+      // حذف کلاس active از تب قبلی
       document.querySelectorAll('.tab').forEach((tab, i) =>
         tab.classList.toggle("active", i === index)
       );
       tabEls[currentTab].classList.remove("active");
       tabEls[index].classList.add("active");
       currentTab = index;
+
+      // بارگذاری محتوا برای تب جدید
       if (!loadedTabs[index]) {
         loadTab(index);
         loadedTabs[index] = true;
       }
-    }
-    
-    function saveContent(index, html) {
-      sessionStorage.setItem("tab_" + index, html);
     }
     
     function loadTab(index) {
@@ -163,10 +164,10 @@
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
                 </tr>`).join("") + "</tbody></table></div>";
             contentEl.innerHTML = table;
-            saveContent(0, table);
-            initializeChart(data[0].symbol); // Initial chart for the first currency
+            initializeChart(data[0].symbol); // نمودار ارز اول
           })
           .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
+        
         document.getElementById("currencySelect").addEventListener("change", (e) => {
           const selectedSymbol = e.target.value;
           initializeChart(selectedSymbol);
@@ -185,7 +186,6 @@
                 <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
               </div>`).join("");
             contentEl.innerHTML = html;
-            saveContent(1, html);
           })
           .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اخبار!</p>");
       }
@@ -203,7 +203,6 @@
                   <p>افراد دعوت‌شده:</p>
                   <ul>${data.invited.map(id => `<li>${id}</li>`).join("")}</ul>`;
                 contentEl.innerHTML = html;
-                saveContent(2, html);
               } else contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
             })
             .catch(() => contentEl.innerHTML = "<p>خطا در دریافت داده‌ها!</p>");
@@ -222,7 +221,6 @@
             <button onclick="submitContract('${userId}')">ثبت قرارداد</button>
             <div id="contracts"></div>`;
           contentEl.innerHTML = html;
-          loadContracts(userId);
         });
       }
       if (index === 4) {
@@ -236,12 +234,12 @@
                 <p><strong>موجودی:</strong> ${wallet.balance} امتیاز</p>
                 <p><strong>تاریخ ایجاد:</strong> ${new Date(wallet.created_at).toLocaleString("fa-IR")}</p>` : "<p>خطا در دریافت کیف پول.</p>";
               contentEl.innerHTML = html;
-              saveContent(4, html);
             })
             .catch(() => contentEl.innerHTML = "<p>خطا در ارتباط با سرور.</p>");
         });
       }
     }
+    
     function initializeChart(symbol) {
       new TradingView.widget({
         autosize: true,
@@ -257,6 +255,7 @@
         fullscreen: true
       });
     }
+    
     function loadTelegramUser(callback) {
       if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
         callback(Telegram.WebApp.initDataUnsafe.user.id);
@@ -264,6 +263,7 @@
         document.getElementById(`tab-${currentTab}`).innerHTML = "<p>این قابلیت تنها در محیط تلگرام فعال است.</p>";
       }
     }
+    
     window.onload = () => {
       loadTab(0);
     };
