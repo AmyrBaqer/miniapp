@@ -6,7 +6,7 @@
   <title>مینی‌اپ ارز دیجیتال</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <script type="text/javascript" src="https://cdn.tradingview.com/tv.js"></script> <!-- بارگذاری کتابخانه TradingView -->
+  <script type="text/javascript" src="https://cdn.tradingview.com/tv.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -94,11 +94,6 @@
       max-height: 400px;
       overflow-y: auto;
     }
-    .chart-container {
-      width: 100%;
-      height: 300px;
-      margin-bottom: 20px;
-    }
   </style>
 </head>
 <body>
@@ -152,7 +147,6 @@
               const table = `
                 <label>انتخاب ارز:</label>
                 <select id="currencySelect">${options}</select>
-                <div class="chart-container" id="chartContainer"></div>
                 <div class="scrollable">
                   <table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>` +
               data.map(c => `
@@ -162,7 +156,6 @@
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
                 </tr>`).join("") + "</tbody></table></div>";
               contentEl.innerHTML = table;
-              initializeChart(data[0].symbol); // نمودار ارز اول
             } else {
               contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
             }
@@ -171,7 +164,7 @@
         
         document.getElementById("currencySelect").addEventListener("change", (e) => {
           const selectedSymbol = e.target.value;
-          initializeChart(selectedSymbol);
+          // در اینجا می‌توانید عملکرد مربوط به تغییر ارز را اضافه کنید (اگر نیاز دارید).
         });
       }
       if (index === 1) {
@@ -243,22 +236,6 @@
             .catch(() => contentEl.innerHTML = "<p>خطا در ارتباط با سرور.</p>");
         });
       }
-    }
-    
-    function initializeChart(symbol) {
-      new TradingView.widget({
-        autosize: true,
-        symbol: `BINANCE:${symbol}USDT`,
-        interval: "15",
-        container_id: "chartContainer",
-        datafeed: new Datafeeds.UDFCompatibleDatafeed("https://demo_feed.tradingview.com"),
-        library_path: "https://s3.tradingview.com/tv.js",
-        locale: "fa",
-        disabled_features: ["header_widget", "left_toolbar", "header_compare"],
-        enabled_features: ["study_templates"],
-        theme: "dark",
-        fullscreen: true
-      });
     }
     
     function loadTelegramUser(callback) {
