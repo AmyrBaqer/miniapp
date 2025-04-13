@@ -145,7 +145,12 @@
       if (index === 0) {
         contentEl.innerHTML = "<p>در حال بارگذاری...</p>";
         fetch("https://mnymaker-production.up.railway.app/crypto")
-          .then(res => res.json())
+          .then(res => {
+            if (!res.ok) {
+              throw new Error("خطا در ارتباط با سرور!");
+            }
+            return res.json();
+          })
           .then(data => {
             if (data && data.length > 0) {
               const options = data.map(c => `<option value="${c.symbol}">${c.name}</option>`).join("");
@@ -167,7 +172,9 @@
               contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
             }
           })
-          .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
+          .catch(error => {
+            contentEl.innerHTML = `<p>خطا: ${error.message}</p>`;
+          });
         
         document.getElementById("currencySelect").addEventListener("change", (e) => {
           const selectedSymbol = e.target.value;
