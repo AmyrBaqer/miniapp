@@ -6,6 +6,7 @@
   <title>مینی‌اپ ارز دیجیتال</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script type="text/javascript" src="https://cdn.tradingview.com/tv.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -96,6 +97,11 @@
       max-height: 400px;
       overflow-y: auto;
     }
+    .chart-container {
+      width: 100%;
+      height: 300px;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -144,22 +150,29 @@
         fetch("https://mnymaker-production.up.railway.app/crypto")
           .then(res => res.json())
           .then(data => {
-            const options = data.map(c => `<option>${c.name}</option>`).join("");
+            const options = data.map(c => `<option value="${c.symbol}">${c.name}</option>`).join("");
             const table = `
-              <table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>` +
+              <label>انتخاب ارز:</label>
+              <select id="currencySelect">${options}</select>
+              <div class="chart-container" id="chartContainer"></div>
+              <div class="scrollable">
+                <table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>` +
               data.map(c => `
                 <tr>
                   <td>${c.name}</td>
                   <td>$${c.price}</td>
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
-                </tr>`).join("") + "</tbody></table>";
-            const html = `
-              <label>انتخاب ارز:</label><select>${options}</select>
-              <div class="scrollable">${table}</div>`;
-            contentEl.innerHTML = html;
-            saveContent(0, html);
+                </tr>`).join("") + "</tbody></table></div>`;
+            contentEl.innerHTML = table;
+            saveContent(0, table);
+            initializeChart(data[0].symbol); // Initial chart for the first currency
           })
           .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
+
+        document.getElementById("currencySelect").addEventListener("change", (e) => {
+          const selectedSymbol = e.target.value;
+          initializeChart(selectedSymbol);
+        });
       }
       if (index === 1) {
         contentEl.innerHTML = "<p>در حال بارگذاری اخبار...</p>";
@@ -232,45 +245,28 @@
       }
     }
 
+    function initializeChart(symbol) {
+      new TradingView.widget({
+        autosize: true,
+        symbol: `BINANCE:${symbol}USDT`,
+        interval: "15",
+        container_id: "chartContainer",
+        datafeed: new Datafeeds.UDFCompatibleDatafeed("https://demo_feed.tradingview.com"),
+        library_path: "https://s3.tradingview.com/tv.js",
+        locale: "fa",
+        disabled_features: ["header_widget", "left_toolbar", "header_compare"],
+        enabled_features: ["study_templates"],
+        theme: "dark",
+        fullscreen: true
+      });
+    }
+
     function loadTelegramUser(callback) {
       if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
         callback(Telegram.WebApp.initDataUnsafe.user.id);
       } else {
         document.getElementById(`tab-${currentTab}`).innerHTML = "<p>این قابلیت تنها در محیط تلگرام فعال است.</p>";
       }
-    }
-
-    function submitContract(userId) {
-      const amount = document.getElementById("amount").value;
-      const due = document.getElementById("due").value;
-      const desc = document.getElementById("desc").value;
-      fetch("https://mnymaker-production.up.railway.app/contract/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, amount, due_days: due, description: desc })
-      })
-        .then(res => res.json())
-        .then(() => switchTab(3))
-        .catch(() => document.getElementById("contracts").innerHTML += "<p>خطا در ثبت قرارداد!</p>");
-    }
-
-    function loadContracts(userId) {
-      fetch(`https://mnymaker-production.up.railway.app/contract/list?user_id=${userId}`)
-        .then(res => res.json())
-        .then(contracts => {
-          const table = `
-            <h2>لیست قراردادها</h2>
-            <table><thead><tr><th>مبلغ</th><th>تاریخ</th><th>توضیحات</th><th>وضعیت</th></tr></thead><tbody>` +
-            contracts.map(c => `
-              <tr>
-                <td>${c.amount} USDT</td>
-                <td>${c.due_date}</td>
-                <td>${c.description}</td>
-                <td>${c.status}</td>
-              </tr>`).join("") + "</tbody></table>";
-          document.getElementById("contracts").innerHTML = table;
-        })
-        .catch(() => document.getElementById("contracts").innerHTML = "<p>خطا در دریافت لیست قراردادها!</p>");
     }
 
     window.onload = () => {
