@@ -18,28 +18,25 @@
       color: #fff;
       padding-bottom: 70px;
       direction: rtl;
+      height: 100vh;
+      overflow: hidden;
     }
     .tab-container {
       width: 100%;
-      position: relative;
-      min-height: 100vh;
-      overflow: hidden;
+      height: 100%;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: flex-start;
     }
     .tab-content {
-      position: absolute;
       width: 100%;
-      top: 0;
-      left: 100%;
-      opacity: 0;
-      transition: left 0.3s ease-out, opacity 0.3s ease-out;
       padding: 16px;
       text-align: center;
+      display: none;
+      overflow-y: auto;
     }
     .tab-content.active {
-      left: 0;
-      opacity: 1;
+      display: block;
     }
     .tabs {
       position: fixed;
@@ -150,21 +147,25 @@
         fetch("https://mnymaker-production.up.railway.app/crypto")
           .then(res => res.json())
           .then(data => {
-            const options = data.map(c => `<option value="${c.symbol}">${c.name}</option>`).join("");
-            const table = `
-              <label>انتخاب ارز:</label>
-              <select id="currencySelect">${options}</select>
-              <div class="chart-container" id="chartContainer"></div>
-              <div class="scrollable">
-                <table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>` +
+            if (data && data.length > 0) {
+              const options = data.map(c => `<option value="${c.symbol}">${c.name}</option>`).join("");
+              const table = `
+                <label>انتخاب ارز:</label>
+                <select id="currencySelect">${options}</select>
+                <div class="chart-container" id="chartContainer"></div>
+                <div class="scrollable">
+                  <table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>` +
               data.map(c => `
                 <tr>
                   <td>${c.name}</td>
                   <td>$${c.price}</td>
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
                 </tr>`).join("") + "</tbody></table></div>";
-            contentEl.innerHTML = table;
-            initializeChart(data[0].symbol); // نمودار ارز اول
+              contentEl.innerHTML = table;
+              initializeChart(data[0].symbol); // نمودار ارز اول
+            } else {
+              contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
+            }
           })
           .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اطلاعات!</p>");
         
@@ -178,14 +179,18 @@
         fetch("https://amyrgit-production.up.railway.app/news")
           .then(res => res.json())
           .then(news => {
-            const html = news.map(item => `
-              <div style="margin-bottom:20px;border-bottom:1px solid #444;padding-bottom:10px">
-                <img src="${item.image}" style="max-width:100%;border-radius:12px" />
-                <h3>${item.title}</h3>
-                <p>${item.summary}</p>
-                <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
-              </div>`).join("");
-            contentEl.innerHTML = html;
+            if (news && news.length > 0) {
+              const html = news.map(item => `
+                <div style="margin-bottom:20px;border-bottom:1px solid #444;padding-bottom:10px">
+                  <img src="${item.image}" style="max-width:100%;border-radius:12px" />
+                  <h3>${item.title}</h3>
+                  <p>${item.summary}</p>
+                  <a href="${item.link}" target="_blank" style="color:#00cec9">ادامه خبر</a>
+                </div>`).join("");
+              contentEl.innerHTML = html;
+            } else {
+              contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
+            }
           })
           .catch(() => contentEl.innerHTML = "<p>خطا در دریافت اخبار!</p>");
       }
