@@ -138,24 +138,26 @@
                 renderChart(selectedSymbol);
               });
               function renderChart(symbol) {
-                document.getElementById("chartContainer").innerHTML = "";
-                new TradingView.widget({
-                  "container_id": "chartContainer",
-                  "width": "100%",
-                  "height": 300,
-                  "symbol": `BINANCE:${symbol}USDT`,
-                  "interval": "30",
-                  "timezone": "Asia/Tehran",
-                  "theme": "dark",
-                  "style": "1",
-                  "locale": "fa",
-                  "hide_legend": true,
-                  "allow_symbol_change": false,
-                  "hide_top_toolbar": true,
-                  "hide_side_toolbar": true,
-                  "autosize": true
-                });
-              }
+  const chartId = `chart_${Date.now()}`;
+  const container = document.getElementById("chartContainer");
+  container.innerHTML = `<div id="${chartId}" style="height: 100%; width: 100%"></div>`;
+  new TradingView.widget({
+    "container_id": chartId,
+    "width": "100%",
+    "height": 300,
+    "symbol": `BINANCE:${symbol}USDT`,
+    "interval": "30",
+    "timezone": "Asia/Tehran",
+    "theme": "dark",
+    "style": "1",
+    "locale": "fa",
+    "hide_legend": true,
+    "allow_symbol_change": false,
+    "hide_top_toolbar": true,
+    "hide_side_toolbar": true,
+    "autosize": true
+  });
+}
             } else {
               contentEl.innerHTML = "<p>داده‌ای برای نمایش وجود ندارد.</p>";
             }
