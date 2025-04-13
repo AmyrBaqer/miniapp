@@ -18,17 +18,22 @@
     }
     .tab-container {
       width: 100%;
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
     }
     .tab-content {
-      display: none;
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 100%;
       opacity: 0;
-      transform: translateX(30px);
-      transition: all 0.3s ease-in-out;
+      transition: all 0.4s ease-in-out;
+      padding: 16px;
     }
     .tab-content.active {
-      display: block;
+      left: 0;
       opacity: 1;
-      transform: translateX(0);
     }
     .tabs {
       position: fixed;
@@ -47,6 +52,8 @@
       cursor: pointer;
       color: #aaa;
       font-size: 12px;
+      transition: background 0.3s, color 0.3s;
+      border-radius: 12px 12px 0 0;
     }
     .tab i {
       display: block;
@@ -64,7 +71,7 @@
       padding: 10px;
       width: 100%;
       margin-bottom: 10px;
-      border-radius: 8px;
+      border-radius: 12px;
     }
     table {
       border-collapse: collapse;
