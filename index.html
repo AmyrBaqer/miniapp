@@ -23,6 +23,8 @@
       position: relative;
       min-height: 100vh;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
     }
     .tab-content {
       position: absolute;
@@ -30,8 +32,9 @@
       top: 0;
       left: 100%;
       opacity: 0;
-      transition: all 0.5s ease-in-out; /* انیمیشن انتقال تب‌ها */
+      transition: left 0.3s ease-out, opacity 0.3s ease-out; /* انیمیشن ساده‌تر */
       padding: 16px;
+      text-align: center;
     }
     .tab-content.active {
       left: 0;
@@ -89,6 +92,10 @@
       background: #00b894;
       cursor: pointer;
     }
+    .scrollable {
+      max-height: 400px;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
@@ -111,6 +118,7 @@
     let currentTab = 0;
     const loadedTabs = {};
     const tabEls = document.querySelectorAll('.tab-content');
+    
     function switchTab(index) {
       if (index === currentTab) return;
       document.querySelectorAll('.tab').forEach((tab, i) =>
@@ -118,16 +126,17 @@
       );
       tabEls[currentTab].classList.remove("active");
       tabEls[index].classList.add("active");
-      tabEls[index].style.transition = "all 0.5s ease-in-out"; // انیمیشن بین تب‌ها
       currentTab = index;
       if (!loadedTabs[index]) {
         loadTab(index);
         loadedTabs[index] = true;
       }
     }
+    
     function saveContent(index, html) {
       sessionStorage.setItem("tab_" + index, html);
     }
+    
     function loadTab(index) {
       const contentEl = document.getElementById(`tab-${index}`);
       if (index === 0) {
@@ -136,14 +145,17 @@
           .then(res => res.json())
           .then(data => {
             const options = data.map(c => `<option>${c.name}</option>`).join("");
-            const table = `<table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>` +
+            const table = `
+              <table><thead><tr><th>نام</th><th>قیمت</th><th>تغییر ۲۴ساعته</th></tr></thead><tbody>` +
               data.map(c => `
                 <tr>
                   <td>${c.name}</td>
                   <td>$${c.price}</td>
                   <td style="color:${c.change >= 0 ? "lightgreen" : "salmon"}">${c.change.toFixed(2)}%</td>
                 </tr>`).join("") + "</tbody></table>";
-            const html = `<label>انتخاب ارز:</label><select>${options}</select>${table}`;
+            const html = `
+              <label>انتخاب ارز:</label><select>${options}</select>
+              <div class="scrollable">${table}</div>`;
             contentEl.innerHTML = html;
             saveContent(0, html);
           })
