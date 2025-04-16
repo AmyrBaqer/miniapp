@@ -18,23 +18,32 @@
       height: 100vh;
       overflow: hidden;
     }
-    .tab-container { 
-      width: 100%; 
-      height: calc(100vh - 60px); 
-      display: flex; 
-      flex-direction: column; 
-      justify-content: flex-start; 
+    .tab-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
     }
     .tab-content {
       width: 100%;
       padding: 16px;
       text-align: center;
-      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      opacity: 0;
+      transform: translateX(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+      height: calc(100% - 60px);
       overflow-y: auto;
-      position: relative;
-      height: 100%;
+      background: #121212; /* Match background color */
     }
-    .tab-content.active { display: block; }
+    .tab-content.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
     .tabs {
       position: fixed;
       bottom: 0;
@@ -46,6 +55,7 @@
       border-top: 1px solid #333;
       z-index: 1000; /* Ensure drawer stays on top */
       padding: 0.8px 0;
+      height: 60px;
     }
     .tab {
       flex: 1;
@@ -54,8 +64,12 @@
       cursor: pointer;
       color: #aaa;
       font-size: 12.96px;
-      transition: background 0.3s, color 0.3s;
+      transition: all 0.3s ease;
       border-radius: 12px 12px 0 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
     .tab i {
       display: block;
@@ -68,6 +82,7 @@
       padding: 11.664px 0;
       z-index: 1001; /* Ensure active tab stays above the drawer */
       position: relative; /* Create stacking context for active tab */
+      transform: translateY(-5px);
     }
     select, table, input, textarea, button {
       background: #222;
@@ -105,6 +120,12 @@
       margin-top: 10px; 
       width: 100%;
       direction: ltr; /* Set table direction to left-to-right */
+    }
+    th {
+      position: sticky; /* Make header row fixed */
+      top: 0; /* Stick to the top of the container */
+      background: #222; /* Match table background */
+      z-index: 1; /* Ensure it stays above other rows */
     }
     th, td {
       padding: 8px;
@@ -242,6 +263,7 @@
           "hide_legend": true,
           "hide_top_toolbar": true,
           "hide_side_toolbar": true,
+          "save_image": false,
           "allow_symbol_change": false,
           "hide_volume": true,
           "container_id": "tradingview-widget",
@@ -254,20 +276,30 @@
     }
 
     function updateTradingViewWidget(symbol) {
+      if (typeof symbol !== 'string' || !symbol.trim()) {
+        console.error('Invalid symbol:', symbol);
+        return; // Exit if the symbol is not valid
+      }
       initializeTradingViewWidget(symbol);
     }
 
     function switchTab(index) {
       if (index === currentTab) return;
-      
+
+      // Remove active class for the current tab content
+      tabEls[currentTab].classList.remove("active");
+
       document.querySelectorAll('.tab').forEach((tab, i) =>
         tab.classList.toggle("active", i === index)
       );
-      
-      tabEls[currentTab].classList.remove("active");
-      tabEls[index].classList.add("active");
+
+      // Add active class for the new tab content after a slight delay
+      setTimeout(() => {
+        tabEls[index].classList.add("active");
+      }, 50);
+
       currentTab = index;
-      
+
       if (!loadedTabs[index]) {
         loadTab(index);
         loadedTabs[index] = true;
@@ -747,4 +779,3 @@
   </script>
 </body>
 </html>
-``` 
