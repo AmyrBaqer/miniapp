@@ -265,8 +265,7 @@
       contentEl.innerHTML = `
         <label>انتخاب ارز:</label>
         <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
-          <option value="BTC" selected>بیت‌کوین</option>
-          <option value="ETH">اتریوم</option>
+          value="ETH">اتریوم</option>
           <option value="BNB">بایننس کوین</option>
         </select>
         <div class="tradingview-widget-container">
@@ -274,7 +273,7 @@
         </div>
         <div id="crypto-table-container" class="scrollable">
           <p>در حال دریافت اطلاعات بازار...</p>
-        </div>`;
+        `;
       
       initializeTradingViewWidget("BTC");
       
@@ -301,7 +300,7 @@
             ).join("");
 
             document.getElementById("currencySelect").innerHTML = `
-              <option value="BTC" selected>بیت‌کوین</option>
+              <option value="BTC" selected>Bitcoin</option>
               ${options}`;
             
             document.getElementById("crypto-table-container").innerHTML = `
