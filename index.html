@@ -201,7 +201,7 @@
         new TradingView.widget({
           "autosize": false,
           "width": "100%",
-          "height": 350,
+          "height": 366,
           "symbol": `${symbol}USDT`,
           "interval": "4H",
           "timezone": "Asia/Tehran",
@@ -270,7 +270,6 @@
         </select>
         <div class="tradingview-widget-container">
           <div id="tradingview-widget"></div>
-        </div>
         <div id="crypto-table-container" class="scrollable">
           <p>در حال دریافت اطلاعات بازار...</p>
         `;
@@ -300,9 +299,10 @@
             ).join("");
 
             document.getElementById("currencySelect").innerHTML = `
-              <option value="BTC" selected>Bitcoin</option>
+              <option value="TON" selected>TonCoin</option>
               ${options}`;
             
+      
             document.getElementById("crypto-table-container").innerHTML = `
               <table>
                 <thead>
