@@ -54,13 +54,13 @@
       flex-direction: row-reverse;
       border-top: 1px solid #333;
       z-index: 1000; /* Ensure drawer stays on top */
-      padding: 0.8px 0;
-      height: 60px;
+      padding: 0px 0;
+      height: 70px;
     }
     .tab {
       flex: 1;
       text-align: center;
-      padding: 10px 0;
+      padding: 0px 0;
       cursor: pointer;
       color: #aaa;
       font-size: 12.96px;
@@ -83,6 +83,7 @@
       z-index: 1001; /* Ensure active tab stays above the drawer */
       position: relative; /* Create stacking context for active tab */
       transform: translateY(-5px);
+      height: 108%; 
     }
     select, table, input, textarea, button {
       background: #222;
@@ -153,7 +154,7 @@
     }
     .tradingview-widget-container {
       width: 100%;
-      height: 377px;
+      height: 300px;
       margin-bottom: 0; /* Removed margin to eliminate spacing */
       border-radius: 12px;
       overflow: hidden;
@@ -251,7 +252,7 @@
         new TradingView.widget({
           "autosize": false,
           "width": "100%",
-          "height": 366,
+          "height": 300,
           "symbol": `${symbol}USDT`,
           "interval": "4H",
           "timezone": "Asia/Tehran",
