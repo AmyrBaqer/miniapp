@@ -78,15 +78,44 @@
       margin-bottom: 10px;
       border-radius: 12px;
     }
+    .currency-select-container {
+      display: flex;
+      align-items: center;
+      gap: 10px; /* Add spacing between label and dropdown */
+      margin-bottom: 10px;
+      margin-top: 0; /* Remove any top margin */
+    }
+    .currency-select-container label {
+      margin: 0;
+      white-space: nowrap;
+      font-size: 130%; /* Increase font size by 30% */
+      position: relative;
+      top: -15%; /* Move label 15% higher */
+    }
+    .currency-select-container select {
+      flex: 1; /* Allow dropdown to take remaining space */
+    }
+    select {
+      text-align: center; /* Center-align dropdown text */
+      direction: ltr; /* Set dropdown direction to left-to-right */
+      font-size: 105%; /* Increase font size by 5% */
+    }
     table { 
       border-collapse: collapse; 
       margin-top: 10px; 
       width: 100%;
+      direction: ltr; /* Set table direction to left-to-right */
     }
     th, td {
       padding: 8px;
-      text-align: right;
+      text-align: left; /* Align text in table cells to the left */
       border-bottom: 1px solid #444;
+    }
+    td:first-child {
+      width: 40%; /* Reduced width for currency names by 20% */
+    }
+    td:nth-child(2), td:nth-child(3) {
+      width: 30%; /* Increased width for prices and changes */
     }
     button { 
       background: #00b894; 
@@ -97,14 +126,14 @@
       opacity: 0.9;
     }
     .scrollable { 
-      max-height: 300px; 
+      max-height: 360px; 
       overflow-y: auto;
-      margin-top: 15px;
+      margin-top: 0; /* Removed margin to bring it closer to the widget */
     }
     .tradingview-widget-container {
       width: 100%;
-      height: 450px;
-      margin-bottom: 20px;
+      height: 377px;
+      margin-bottom: 0; /* Removed margin to eliminate spacing */
       border-radius: 12px;
       overflow: hidden;
     }
@@ -180,13 +209,13 @@
       script.onerror = () => {
         console.error('Failed to load TradingView script');
         document.getElementById('tradingview-widget')?.insertAdjacentHTML('afterend', 
-          '<p class="error-message">خطا د�� بارگذاری نمودار. لطفاً اتصال اینترنت را بررسی کنید.</p>');
+          '<p class="error-message">خطا در بارگذاری نمودار. لطفاً اتصال اینترنت را بررسی کنید.</p>');
       };
       document.body.appendChild(script);
     }
 
     // تابع ایجاد ویجت TradingView
-    function initializeTradingViewWidget(symbol = 'BTC') {
+    function initializeTradingViewWidget(symbol = 'TON') {
       if (!tradingViewScriptLoaded) {
         loadTradingViewScript(() => initializeTradingViewWidget(symbol));
         return;
@@ -194,9 +223,9 @@
 
       const widgetContainer = document.getElementById("tradingview-widget");
       if (!widgetContainer) return;
-      
+
       widgetContainer.innerHTML = '<div class="loading"></div>';
-      
+
       try {
         new TradingView.widget({
           "autosize": false,
@@ -210,14 +239,13 @@
           "locale": "fa_IR",
           "toolbar_bg": "#1e1e1e",
           "enable_publishing": false,
+          "hide_legend": true,
           "hide_top_toolbar": true,
           "hide_side_toolbar": true,
           "allow_symbol_change": false,
-
+          "hide_volume": true,
           "container_id": "tradingview-widget",
-          "studies": [
-            ""
-          ]
+          "studies": [] // Removed "Volume" indicator
         });
       } catch (error) {
         console.error('TradingView error:', error);
@@ -264,20 +292,22 @@
 
     function loadPriceTab(contentEl) {
       contentEl.innerHTML = `
-        <label>انتخاب ارز:</label>
-        <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
-          value="ETH">اتریوم</option>
-          <option value="BNB">بایننس کوین</option>
-        </select>
+        <div class="currency-select-container">
+          <label>انتخاب ارز:</label>
+          <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
+            <option value="TON" selected>TonCoin</option>
+          </select>
+        </div>
         <div class="tradingview-widget-container">
           <div id="tradingview-widget"></div>
+        </div>
         <div id="crypto-table-container" class="scrollable">
           <p>در حال دریافت اطلاعات بازار...</p>
-       </div> `;
+        </div>`;
       
       initializeTradingViewWidget("TON");
-      
-      // دریافت اطلاعات ارزها
+
+      // Fetch and display currencies
       fetch("https://mnymaker-production.up.railway.app/crypto")
         .then(res => {
           if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -285,11 +315,15 @@
         })
         .then(data => {
           if (data?.length > 0) {
-            const options = data.map(c => 
+            // Ensure data types are correct, remove duplicates, and exclude Tether (USDT)
+            const uniqueCurrencies = Array.from(new Map(data.map(c => [c.symbol, c])).values())
+              .filter(c => c.symbol !== "USDT" && typeof c.symbol === "string" && typeof c.name === "string" && typeof c.price === "number");
+
+            const options = uniqueCurrencies.map(c => 
               `<option value="${c.symbol}">${c.name}</option>`
             ).join("");
-            
-            const tableRows = data.map(c => `
+
+            const tableRows = uniqueCurrencies.map(c => `
               <tr>
                 <td>${c.name}</td>
                 <td>$${c.price}</td>
@@ -302,8 +336,7 @@
             document.getElementById("currencySelect").innerHTML = `
               <option value="TON" selected>TonCoin</option>
               ${options}`;
-            
-      
+
             document.getElementById("crypto-table-container").innerHTML = `
               <table>
                 <thead>
@@ -714,3 +747,4 @@
   </script>
 </body>
 </html>
+``` 
