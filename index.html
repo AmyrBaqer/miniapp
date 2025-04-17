@@ -190,15 +190,412 @@
       border-radius: 8px;
       margin: 10px 0;
     }
+    /* Add styles for the language section in the wallet tab */
+    .language-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #1e1e1e;
+      border-radius: 12px;
+    }
+    .language-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .language-selector label {
+      white-space: nowrap;
+    }
   </style>
+  <script>
+    let appLanguage = 'fa'; // Default language
+
+    const translations = {
+      fa: {
+        price: 'قیمت',
+        news: 'اخبار',
+        referral: 'رفرال',
+        contract: 'قرارداد',
+        wallet: 'کیف پول',
+        selectLanguage: 'انتخاب زبان:',
+        walletBalance: 'موجودی فعلی',
+        points: 'امتیاز',
+        recentTransactions: 'تراکنش‌های اخیر',
+        deposit: 'واریز',
+        withdraw: 'برداشت',
+        noTransactions: 'تراکنشی یافت نشد',
+        inviteLinkCopied: 'لینک دعوت کپی شد!',
+        enterValidAmount: 'لطفاً مبلغ معتبر وارد کنید',
+        registeringContract: 'در حال ثبت قرارداد...',
+        contractRegistered: 'قرارداد با موفقیت ثبت شد!',
+        noContracts: 'قرارداد فعالی وجود ندارد',
+        fetchingMarketData: 'در حال دریافت اطلاعات بازار...',
+        noMarketData: 'داده‌ای برای نمایش وجود ندارد',
+        fetchingNews: 'در حال دریافت اخبار...',
+        noNews: 'اخبار جدیدی یافت نشد',
+        errorLoadingChart: 'خطا در نمایش نمودار',
+        errorFetchingData: 'خطا در دریافت اطلاعات بازار',
+        errorFetchingNews: 'خطا در دریافت اخبار',
+        errorFetchingContracts: 'خطا در دریافت قراردادها',
+        errorFetchingReferral: 'خطا در دریافت اطلاعات معرفی',
+        errorConnectingServer: 'خطا در ارتباط با سرور',
+      },
+      en: {
+        price: 'Price',
+        news: 'News',
+        referral: 'Referral',
+        contract: 'Contract',
+        wallet: 'Wallet',
+        selectLanguage: 'Select Language:',
+        walletBalance: 'Current Balance',
+        points: 'Points',
+        recentTransactions: 'Recent Transactions',
+        deposit: 'Deposit',
+        withdraw: 'Withdraw',
+        noTransactions: 'No transactions found',
+        inviteLinkCopied: 'Invite link copied!',
+        enterValidAmount: 'Please enter a valid amount',
+        registeringContract: 'Registering contract...',
+        contractRegistered: 'Contract successfully registered!',
+        noContracts: 'No active contracts',
+        fetchingMarketData: 'Fetching market data...',
+        noMarketData: 'No data available',
+        fetchingNews: 'Fetching news...',
+        noNews: 'No news found',
+        errorLoadingChart: 'Error loading chart',
+        errorFetchingData: 'Error fetching market data',
+        errorFetchingNews: 'Error fetching news',
+        errorFetchingContracts: 'Error fetching contracts',
+        errorFetchingReferral: 'Error fetching referral data',
+        errorConnectingServer: 'Error connecting to server',
+      },
+      es: {
+        price: 'Precio',
+        news: 'Noticias',
+        referral: 'Referidos',
+        contract: 'Contrato',
+        wallet: 'Cartera',
+        selectLanguage: 'Seleccionar idioma:',
+        walletBalance: 'Saldo actual',
+        points: 'Puntos',
+        recentTransactions: 'Transacciones recientes',
+        deposit: 'Depósito',
+        withdraw: 'Retiro',
+        noTransactions: 'No se encontraron transacciones',
+        inviteLinkCopied: '¡Enlace de invitación copiado!',
+        enterValidAmount: 'Por favor, ingrese una cantidad válida',
+        registeringContract: 'Registrando contrato...',
+        contractRegistered: '¡Contrato registrado con éxito!',
+        noContracts: 'No hay contratos activos',
+        fetchingMarketData: 'Obteniendo datos del mercado...',
+        noMarketData: 'No hay datos disponibles',
+        fetchingNews: 'Obteniendo noticias...',
+        noNews: 'No se encontraron noticias',
+        errorLoadingChart: 'Error al cargar el gráfico',
+        errorFetchingData: 'Error al obtener datos del mercado',
+        errorFetchingNews: 'Error al obtener noticias',
+        errorFetchingContracts: 'Error al obtener contratos',
+        errorFetchingReferral: 'Error al obtener datos de referencia',
+        errorConnectingServer: 'Error al conectar con el servidor',
+      },
+      zh: {
+        price: '价格',
+        news: '新闻',
+        referral: '推荐',
+        contract: '合同',
+        wallet: '钱包',
+        selectLanguage: '选择语言:',
+        walletBalance: '当前余额',
+        points: '积分',
+        recentTransactions: '最近交易',
+        deposit: '存款',
+        withdraw: '取款',
+        noTransactions: '未找到交易',
+        inviteLinkCopied: '邀请链接已复制！',
+        enterValidAmount: '请输入有效金额',
+        registeringContract: '注册合同中...',
+        contractRegistered: '合同注册成功！',
+        noContracts: '没有活跃的合同',
+        fetchingMarketData: '获取市场数据中...',
+        noMarketData: '没有可用数据',
+        fetchingNews: '获取新闻中...',
+        noNews: '未找到新闻',
+        errorLoadingChart: '加载图表时出错',
+        errorFetchingData: '获取市场数据时出错',
+        errorFetchingNews: '获取新闻时出错',
+        errorFetchingContracts: '获取合同时出错',
+        errorFetchingReferral: '获取推荐数据时出错',
+        errorConnectingServer: '连接服务器时出错',
+      },
+      hi: {
+        price: 'कीमत',
+        news: 'समाचार',
+        referral: 'रेफरल',
+        contract: 'अनुबंध',
+        wallet: 'वॉलेट',
+        selectLanguage: 'भाषा चुनें:',
+        walletBalance: 'वर्तमान शेष',
+        points: 'अंक',
+        recentTransactions: 'हाल के लेन-देन',
+        deposit: 'जमा',
+        withdraw: 'निकासी',
+        noTransactions: 'कोई लेन-देन नहीं मिला',
+        inviteLinkCopied: 'आमंत्रण लिंक कॉपी किया गया!',
+        enterValidAmount: 'कृपया एक मान्य राशि दर्ज करें',
+        registeringContract: 'अनुबंध पंजीकृत किया जा रहा है...',
+        contractRegistered: 'अनुबंध सफलतापूर्वक पंजीकृत!',
+        noContracts: 'कोई सक्रिय अनुबंध नहीं',
+        fetchingMarketData: 'बाजार डेटा प्राप्त कर रहा है...',
+        noMarketData: 'कोई डेटा उपलब्ध नहीं',
+        fetchingNews: 'समाचार प्राप्त कर रहा है...',
+        noNews: 'कोई समाचार नहीं मिला',
+        errorLoadingChart: 'चार्ट लोड करने में त्रुटि',
+        errorFetchingData: 'बाजार डेटा प्राप्त करने में त्रुटि',
+        errorFetchingNews: 'समाचार प्राप्त करने में त्रुटि',
+        errorFetchingContracts: 'अनुबंध प्राप्त करने में त्रुटि',
+        errorFetchingReferral: 'रेफरल डेटा प्राप्त करने में त्रुटि',
+        errorConnectingServer: 'सर्वर से कनेक्ट करने में त्रुटि',
+      },
+      ar: {
+        price: 'السعر',
+        news: 'الأخبار',
+        referral: 'الإحالة',
+        contract: 'العقد',
+        wallet: 'المحفظة',
+        selectLanguage: 'اختر اللغة:',
+        walletBalance: 'الرصيد الحالي',
+        points: 'النقاط',
+        recentTransactions: 'المعاملات الأخيرة',
+        deposit: 'إيداع',
+        withdraw: 'سحب',
+        noTransactions: 'لم يتم العثور على معاملات',
+        inviteLinkCopied: 'تم نسخ رابط الدعوة!',
+        enterValidAmount: 'يرجى إدخال مبلغ صالح',
+        registeringContract: 'جارٍ تسجيل العقد...',
+        contractRegistered: 'تم تسجيل العقد بنجاح!',
+        noContracts: 'لا توجد عقود نشطة',
+        fetchingMarketData: 'جارٍ جلب بيانات السوق...',
+        noMarketData: 'لا توجد بيانات متاحة',
+        fetchingNews: 'جارٍ جلب الأخبار...',
+        noNews: 'لم يتم العثور على أخبار',
+        errorLoadingChart: 'خطأ في تحميل الرسم البياني',
+        errorFetchingData: 'خطأ في جلب بيانات السوق',
+        errorFetchingNews: 'خطأ في جلب الأخبار',
+        errorFetchingContracts: 'خطأ في جلب العقود',
+        errorFetchingReferral: 'خطأ في جلب بيانات الإحالة',
+        errorConnectingServer: 'خطأ في الاتصال بالخادم',
+      },
+      ru: {
+        price: 'Цена',
+        news: 'Новости',
+        referral: 'Реферал',
+        contract: 'Контракт',
+        wallet: 'Кошелек',
+        selectLanguage: 'Выберите язык:',
+        walletBalance: 'Текущий баланс',
+        points: 'Очки',
+        recentTransactions: 'Последние транзакции',
+        deposit: 'Депозит',
+        withdraw: 'Снять',
+        noTransactions: 'Транзакции не найдены',
+        inviteLinkCopied: 'Ссылка на приглашение скопирована!',
+        enterValidAmount: 'Пожалуйста, введите действительную сумму',
+        registeringContract: 'Регистрация контракта...',
+        contractRegistered: 'Контракт успешно зарегистрирован!',
+        noContracts: 'Активных контрактов нет',
+        fetchingMarketData: 'Получение данных рынка...',
+        noMarketData: 'Нет доступных данных',
+        fetchingNews: 'Получение новостей...',
+        noNews: 'Новостей не найдено',
+        errorLoadingChart: 'Ошибка загрузки графика',
+        errorFetchingData: 'Ошибка получения данных рынка',
+        errorFetchingNews: 'Ошибка получения новостей',
+        errorFetchingContracts: 'Ошибка получения контрактов',
+        errorFetchingReferral: 'Ошибка получения данных рефералов',
+        errorConnectingServer: 'Ошибка подключения к серверу',
+      },
+      pt: {
+        price: 'Preço',
+        news: 'Notícias',
+        referral: 'Referência',
+        contract: 'Contrato',
+        wallet: 'Carteira',
+        selectLanguage: 'Selecionar idioma:',
+        walletBalance: 'Saldo atual',
+        points: 'Pontos',
+        recentTransactions: 'Transações recentes',
+        deposit: 'Depósito',
+        withdraw: 'Retirada',
+        noTransactions: 'Nenhuma transação encontrada',
+        inviteLinkCopied: 'Link de convite copiado!',
+        enterValidAmount: 'Por favor, insira um valor válido',
+        registeringContract: 'Registrando contrato...',
+        contractRegistered: 'Contrato registrado com sucesso!',
+        noContracts: 'Nenhum contrato ativo',
+        fetchingMarketData: 'Obtendo dados do mercado...',
+        noMarketData: 'Nenhum dado disponível',
+        fetchingNews: 'Obtendo notícias...',
+        noNews: 'Nenhuma notícia encontrada',
+        errorLoadingChart: 'Erro ao carregar gráfico',
+        errorFetchingData: 'Erro ao obter dados do mercado',
+        errorFetchingNews: 'Erro ao obter notícias',
+        errorFetchingContracts: 'Erro ao obter contratos',
+        errorFetchingReferral: 'Erro ao obter dados de referência',
+        errorConnectingServer: 'Erro ao conectar ao servidor',
+      },
+      fr: {
+        price: 'Prix',
+        news: 'Actualités',
+        referral: 'Parrainage',
+        contract: 'Contrat',
+        wallet: 'Portefeuille',
+        selectLanguage: 'Choisir la langue:',
+        walletBalance: 'Solde actuel',
+        points: 'Points',
+        recentTransactions: 'Transactions récentes',
+        deposit: 'Dépôt',
+        withdraw: 'Retrait',
+        noTransactions: 'Aucune transaction trouvée',
+        inviteLinkCopied: 'Lien d\'invitation copié!',
+        enterValidAmount: 'Veuillez entrer un montant valide',
+        registeringContract: 'Enregistrement du contrat...',
+        contractRegistered: 'Contrat enregistré avec succès!',
+        noContracts: 'Aucun contrat actif',
+        fetchingMarketData: 'Récupération des données du marché...',
+        noMarketData: 'Aucune donnée disponible',
+        fetchingNews: 'Récupération des actualités...',
+        noNews: 'Aucune actualité trouvée',
+        errorLoadingChart: 'Erreur de chargement du graphique',
+        errorFetchingData: 'Erreur lors de la récupération des données du marché',
+        errorFetchingNews: 'Erreur lors de la récupération des actualités',
+        errorFetchingContracts: 'Erreur lors de la récupération des contrats',
+        errorFetchingReferral: 'Erreur lors de la récupération des données de parrainage',
+        errorConnectingServer: 'Erreur de connexion au serveur',
+      },
+    };
+
+    function setLanguage(lang) {
+      appLanguage = lang;
+      document.documentElement.lang = lang;
+      updateLanguageTexts();
+    }
+
+    function detectUserLanguage() {
+      const userLang = navigator.language || navigator.userLanguage;
+      const supportedLangs = ['fa', 'en', 'es', 'fr', 'de', 'zh', 'ar', 'ru', 'tr', 'ja'];
+      const primaryLang = userLang.split('-')[0];
+
+      if (supportedLangs.includes(primaryLang)) {
+        setLanguage(primaryLang);
+      } else {
+        setLanguage('fa');
+      }
+    }
+
+    function updateLanguageTexts() {
+      const texts = translations[appLanguage];
+
+      // Update tab labels
+      document.querySelectorAll('.tab').forEach((tab, index) => {
+        const labels = [texts.price, texts.news, texts.referral, texts.contract, texts.wallet];
+        tab.querySelector('i').nextSibling.textContent = labels[index];
+      });
+
+      // Update wallet tab content
+      if (currentTab === 4) {
+        document.querySelector('.language-section label').textContent = texts.selectLanguage;
+        document.getElementById('wallet-balance-label').textContent = texts.walletBalance;
+        document.getElementById('recent-transactions-label').textContent = texts.recentTransactions;
+        document.querySelector('.scrollable p').textContent = texts.noTransactions;
+
+        document.querySelectorAll('button').forEach(button => {
+          if (button.textContent.includes('واریز') || button.textContent.includes('Deposit')) {
+            button.textContent = texts.deposit;
+          }
+          if (button.textContent.includes('برداشت') || button.textContent.includes('Withdraw')) {
+            button.textContent = texts.withdraw;
+          }
+        });
+      }
+
+      // Update error messages dynamically
+      document.querySelectorAll('.error-message').forEach(el => {
+        if (el.textContent.includes('خطا در دریافت اطلاعات بازار') || el.textContent.includes('Error fetching market data')) {
+          el.textContent = texts.errorFetchingData;
+        }
+        if (el.textContent.includes('خطا در دریافت اخبار') || el.textContent.includes('Error fetching news')) {
+          el.textContent = texts.errorFetchingNews;
+        }
+        if (el.textContent.includes('خطا در دریافت قراردادها') || el.textContent.includes('Error fetching contracts')) {
+          el.textContent = texts.errorFetchingContracts;
+        }
+        if (el.textContent.includes('خطا در ارتباط با سرور') || el.textContent.includes('Error connecting to server')) {
+          el.textContent = texts.errorConnectingServer;
+        }
+      });
+
+      // Update other static texts dynamically
+      document.querySelectorAll('[data-translate-key]').forEach(el => {
+        const key = el.getAttribute('data-translate-key');
+        if (texts[key]) {
+          el.textContent = texts[key];
+        }
+      });
+    }
+  </script>
 </head>
-<body>
+<body onload="detectUserLanguage()">
   <div class="tab-container">
-    <div class="tab-content active" id="tab-0"></div>
-    <div class="tab-content" id="tab-1"></div>
-    <div class="tab-content" id="tab-2"></div>
-    <div class="tab-content" id="tab-3"></div>
-    <div class="tab-content" id="tab-4"></div>
+    <div class="tab-content active" id="tab-0">
+      <div class="currency-select-container">
+        <label data-translate-key="selectCurrency">${translations[appLanguage].selectCurrency || 'انتخاب ارز:'}</label>
+        <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
+          <option value="TON" selected>TonCoin</option>
+        </select>
+      </div>
+      <div class="tradingview-widget-container">
+        <div id="tradingview-widget"></div>
+      </div>
+      <div id="crypto-table-container" class="scrollable">
+        <p data-translate-key="fetchingMarketData">${translations[appLanguage].fetchingMarketData || 'در حال دریافت اطلاعات بازار...'}</p>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-1">
+      <div class="loading" data-translate-key="fetchingNews">${translations[appLanguage].fetchingNews || 'در حال دریافت اخبار...'}</div>
+    </div>
+    <div class="tab-content" id="tab-2">
+      <h2 data-translate-key="referralSystem">${translations[appLanguage].referralSystem || 'سیستم معرفی دوستان'}</h2>
+      <p data-translate-key="inviteLinkCopied">${translations[appLanguage].inviteLinkCopied || 'لینک دعوت کپی شد!'}</p>
+    </div>
+    <div class="tab-content" id="tab-3">
+      <h2 data-translate-key="manageContracts">${translations[appLanguage].manageContracts || 'مدیریت قراردادها'}</h2>
+      <label data-translate-key="amount">${translations[appLanguage].amount || 'مبلغ (USDT):'}</label>
+      <label data-translate-key="dueDate">${translations[appLanguage].dueDate || 'تاریخ پایان:'}</label>
+      <label data-translate-key="description">${translations[appLanguage].description || 'توضیحات:'}</label>
+    </div>
+    <div class="tab-content" id="tab-4">
+      <div class="language-section">
+        <div class="language-selector">
+          <label data-translate-key="selectLanguage">${translations[appLanguage].selectLanguage || 'انتخاب زبان:'}</label>
+          <select onchange="setLanguage(this.value)" style="flex:1">
+            ${Object.keys(translations).map(
+              lang => `<option value="${lang}" ${appLanguage === lang ? 'selected' : ''}>${translations[lang].selectLanguage}</option>`
+            ).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+        <p id="wallet-balance-label" data-translate-key="walletBalance">${translations[appLanguage].walletBalance || 'موجودی فعلی'}</p>
+        <p style="font-size: 32px; font-weight: bold; margin: 0; color: #00b894;">0 <span style="font-size: 16px;" data-translate-key="points">${translations[appLanguage].points || 'امتیاز'}</span></p>
+      </div>
+      <div style="background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+        <h3 id="recent-transactions-label" data-translate-key="recentTransactions">${translations[appLanguage].recentTransactions || 'تراکنش‌های اخیر'}</h3>
+        <p data-translate-key="noTransactions">${translations[appLanguage].noTransactions || 'تراکنشی یافت نشد'}</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button style="flex: 1; background: #00b894;" data-translate-key="deposit">${translations[appLanguage].deposit || 'واریز'}</button>
+        <button style="flex: 1; background: #fc5c65;" data-translate-key="withdraw">${translations[appLanguage].withdraw || 'برداشت'}</button>
+      </div>
+    </div>
   </div>
   <div class="tabs">
     <div class="tab active" onclick="switchTab(0)"><i class="fas fa-coins"></i>قیمت</div>
@@ -304,6 +701,10 @@
       if (!loadedTabs[index]) {
         loadTab(index);
         loadedTabs[index] = true;
+      }
+
+      if (index === 1) {
+        updateLanguageTexts(); // Update texts when switching to the "اخبار" tab
       }
     }
 
@@ -625,89 +1026,29 @@
 
     function loadWalletTab(contentEl) {
       loadTelegramUser(userId => {
-        contentEl.innerHTML = '<div class="loading"></div>';
-        
-        fetch(`https://walletapp-production-ccf1.up.railway.app/wallet?user_id=${userId}`)
-          .then(res => {
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            return res.json();
-          })
-          .then(wallet => {
-            contentEl.innerHTML = `
-              <h2 style="margin-bottom: 20px;">کیف پول شما</h2>
-              
-              <div style="
-                background: #1e1e1e;
-                padding: 20px;
-                border-radius: 12px;
-                margin-bottom: 20px;
-                text-align: center;
-              ">
-                <p style="
-                  font-size: 14px;
-                  color: #aaa;
-                  margin-bottom: 5px;
-                ">موجودی فعلی</p>
-                
-                <p style="
-                  font-size: 32px;
-                  font-weight: bold;
-                  margin: 0;
-                  color: #00b894;
-                ">${wallet?.balance || 0} <span style="font-size: 16px;">امتیاز</span></p>
-              </div>
-              
-              <div style="
-                background: #1e1e1e;
-                padding: 15px;
-                border-radius: 12px;
-                margin-bottom: 15px;
-              ">
-                <h3 style="margin-top: 0;">تراکنش‌های اخیر</h3>
-                
-                ${wallet?.transactions?.length > 0 ? `
-                  <div class="scrollable">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>مبلغ</th>
-                          <th>نوع</th>
-                          <th>تاریخ</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        ${wallet.transactions.map(t => `
-                          <tr>
-                            <td style="color: ${
-                              t.type === 'deposit' ? '#26de81' : '#fc5c65'
-                            }">
-                              ${t.type === 'deposit' ? '+' : '-'}${t.amount}
-                            </td>
-                            <td>${
-                              t.type === 'deposit' ? 'واریز' : 
-                              t.type === 'withdraw' ? 'برداشت' : 'سایر'
-                            }</td>
-                            <td>${new Date(t.date).toLocaleDateString('fa-IR')}</td>
-                          </tr>
-                        `).join("")}
-                      </tbody>
-                    </table>
-                  </div>
-                ` : '<p>تراکنشی یافت نشد</p>'}
-              </div>
-              
-              <div style="display: flex; gap: 10px;">
-                <button style="flex: 1; background: #00b894;">
-                  واریز
-                </button>
-                <button style="flex: 1; background: #fc5c65;">
-                  برداشت
-                </button>
-              </div>`;
-          })
-          .catch(() => {
-            contentEl.innerHTML = '<p class="error-message">خطا در دریافت اطلاعات کیف پول</p>';
-          });
+        contentEl.innerHTML = `
+          <div class="language-section">
+            <div class="language-selector">
+              <label>${translations[appLanguage].selectLanguage}</label>
+              <select onchange="setLanguage(this.value)" style="flex:1">
+                ${Object.keys(translations).map(
+                  lang => `<option value="${lang}" ${appLanguage === lang ? 'selected' : ''}>${translations[lang].selectLanguage}</option>`
+                ).join('')}
+              </select>
+            </div>
+          </div>
+          <div style="background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+            <p id="wallet-balance-label" style="font-size: 14px; color: #aaa; margin-bottom: 5px;">${translations[appLanguage].walletBalance}</p>
+            <p style="font-size: 32px; font-weight: bold; margin: 0; color: #00b894;">0 <span style="font-size: 16px;">${translations[appLanguage].points}</span></p>
+          </div>
+          <div style="background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+            <h3 id="recent-transactions-label" style="margin-top: 0;">${translations[appLanguage].recentTransactions}</h3>
+            <p>تراکنشی یافت نشد</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button style="flex: 1; background: #00b894;">${translations[appLanguage].deposit}</button>
+            <button style="flex: 1; background: #fc5c65;">${translations[appLanguage].withdraw}</button>
+          </div>`;
       });
     }
 
