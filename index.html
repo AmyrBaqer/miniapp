@@ -37,7 +37,7 @@
       pointer-events: none;
       height: calc(100% - 60px);
       overflow-y: auto;
-      background: #121212; /* Match background color */
+      background: #121212;
     }
     .tab-content.active {
       opacity: 1;
@@ -53,7 +53,7 @@
       display: flex;
       flex-direction: row-reverse;
       border-top: 1px solid #333;
-      z-index: 1000; /* Ensure drawer stays on top */
+      z-index: 1000;
       padding: 0px 0;
       height: 70px;
     }
@@ -80,8 +80,8 @@
       background: #00b894;
       color: #fff;
       padding: 11.664px 0;
-      z-index: 1001; /* Ensure active tab stays above the drawer */
-      position: relative; /* Create stacking context for active tab */
+      z-index: 1001;
+      position: relative;
       transform: translateY(-5px);
       height: 108%; 
     }
@@ -97,47 +97,47 @@
     .currency-select-container {
       display: flex;
       align-items: center;
-      gap: 10px; /* Add spacing between label and dropdown */
+      gap: 10px;
       margin-bottom: 10px;
-      margin-top: 0; /* Remove any top margin */
+      margin-top: 0;
     }
     .currency-select-container label {
       margin: 0;
       white-space: nowrap;
-      font-size: 130%; /* Increase font size by 30% */
+      font-size: 130%;
       position: relative;
-      top: -15%; /* Move label 15% higher */
+      top: -15%;
     }
     .currency-select-container select {
-      flex: 1; /* Allow dropdown to take remaining space */
+      flex: 1;
     }
     select {
-      text-align: center; /* Center-align dropdown text */
-      direction: ltr; /* Set dropdown direction to left-to-right */
-      font-size: 105%; /* Increase font size by 5% */
+      text-align: center;
+      direction: ltr;
+      font-size: 105%;
     }
     table { 
       border-collapse: collapse; 
       margin-top: 10px; 
       width: 100%;
-      direction: ltr; /* Set table direction to left-to-right */
+      direction: ltr;
     }
     th {
-      position: sticky; /* Make header row fixed */
-      top: 0; /* Stick to the top of the container */
-      background: #222; /* Match table background */
-      z-index: 1; /* Ensure it stays above other rows */
+      position: sticky;
+      top: 0;
+      background: #222;
+      z-index: 1;
     }
     th, td {
       padding: 8px;
-      text-align: left; /* Align text in table cells to the left */
+      text-align: left;
       border-bottom: 1px solid #444;
     }
     td:first-child {
-      width: 40%; /* Reduced width for currency names by 20% */
+      width: 40%;
     }
     td:nth-child(2), td:nth-child(3) {
-      width: 30%; /* Increased width for prices and changes */
+      width: 30%;
     }
     button { 
       background: #00b894; 
@@ -150,12 +150,12 @@
     .scrollable { 
       max-height: 360px; 
       overflow-y: auto;
-      margin-top: 0; /* Removed margin to bring it closer to the widget */
+      margin-top: 0;
     }
     .tradingview-widget-container {
       width: 100%;
       height: 300px;
-      margin-bottom: 0; /* Removed margin to eliminate spacing */
+      margin-bottom: 0;
       border-radius: 12px;
       overflow: hidden;
     }
@@ -190,7 +190,6 @@
       border-radius: 8px;
       margin: 10px 0;
     }
-    /* Add styles for the language section in the wallet tab */
     .language-section {
       margin-bottom: 20px;
       padding: 15px;
@@ -206,8 +205,105 @@
       white-space: nowrap;
     }
   </style>
+</head>
+<body>
+  <div class="tab-container">
+    <div class="tab-content active" id="tab-0">
+      <div class="currency-select-container">
+        <label data-translate-key="selectCurrency"></label>
+        <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
+          <option value="TON" selected>TonCoin</option>
+        </select>
+      </div>
+      <div class="tradingview-widget-container">
+        <div id="tradingview-widget"></div>
+      </div>
+      <div id="crypto-table-container" class="scrollable">
+        <p data-translate-key="fetchingMarketData"></p>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-1">
+      <div class="loading" data-translate-key="fetchingNews"></div>
+    </div>
+    <div class="tab-content" id="tab-2">
+      <h2 data-translate-key="referralSystem"></h2>
+      <p data-translate-key="inviteLinkCopied"></p>
+    </div>
+    <div class="tab-content" id="tab-3">
+      <h2 data-translate-key="manageContracts"></h2>
+      <label data-translate-key="amount"></label>
+      <input type="number" id="amount" placeholder="" data-translate-placeholder="amountPlaceholder">
+      <label data-translate-key="dueDate"></label>
+      <select id="due">
+        <option value="7" data-translate-key="days7"></option>
+        <option value="14" data-translate-key="days14"></option>
+        <option value="21" data-translate-key="days21"></option>
+        <option value="28" data-translate-key="days28"></option>
+      </select>
+      <label data-translate-key="description"></label>
+      <textarea id="desc" rows="3" data-translate-placeholder="descriptionPlaceholder"></textarea>
+      <button onclick="submitContract()" data-translate-key="registerContract"></button>
+    </div>
+    <div class="tab-content" id="tab-4">
+      <div class="language-section">
+        <div class="language-selector">
+          <label data-translate-key="selectLanguage"></label>
+          <select id="languageSelect" onchange="setLanguage(this.value)" style="flex:1">
+            <option value="fa">فارسی</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="zh">中文</option>
+            <option value="hi">हिन्दी</option>
+            <option value="ar">العربية</option>
+            <option value="ru">Русский</option>
+            <option value="pt">Português</option>
+            <option value="fr">Français</option>
+          </select>
+        </div>
+      </div>
+      <div style="background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+        <p id="wallet-balance-label" data-translate-key="walletBalance"></p>
+        <p style="font-size: 32px; font-weight: bold; margin: 0; color: #00b894;">0 <span style="font-size: 16px;" data-translate-key="points"></span></p>
+      </div>
+      <div style="background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+        <h3 id="recent-transactions-label" data-translate-key="recentTransactions"></h3>
+        <p data-translate-key="noTransactions"></p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button style="flex: 1; background: #00b894;" data-translate-key="deposit"></button>
+        <button style="flex: 1; background: #fc5c65;" data-translate-key="withdraw"></button>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">
+      <i class="fas fa-coins"></i>
+      <span data-translate-key="price"></span>
+    </div>
+    <div class="tab" onclick="switchTab(1)">
+      <i class="fas fa-newspaper"></i>
+      <span data-translate-key="news"></span>
+    </div>
+    <div class="tab" onclick="switchTab(2)">
+      <i class="fas fa-user-friends"></i>
+      <span data-translate-key="referral"></span>
+    </div>
+    <div class="tab" onclick="switchTab(3)">
+      <i class="fas fa-file-signature"></i>
+      <span data-translate-key="contract"></span>
+    </div>
+    <div class="tab" onclick="switchTab(4)">
+      <i class="fas fa-wallet"></i>
+      <span data-translate-key="wallet"></span>
+    </div>
+  </div>
+
   <script>
-    let appLanguage = 'fa'; // Default language
+    let appLanguage = 'fa';
+    let currentTab = 0;
+    const loadedTabs = {};
+    const tabEls = document.querySelectorAll('.tab-content');
+    let tradingViewScriptLoaded = false;
 
     const translations = {
       fa: {
@@ -216,6 +312,21 @@
         referral: 'رفرال',
         contract: 'قرارداد',
         wallet: 'کیف پول',
+        selectCurrency: 'انتخاب ارز:',
+        currencyName: 'نام ارز',
+        change24h: 'تغییر 24ساعت',
+        referralSystem: 'سیستم معرفی دوستان',
+        manageContracts: 'مدیریت قراردادها',
+        amount: 'مبلغ (USDT):',
+        amountPlaceholder: 'مثال: 100',
+        dueDate: 'تاریخ پایان:',
+        description: 'توضیحات:',
+        descriptionPlaceholder: 'توضیحات قرارداد (اختیاری)',
+        days7: '7 روز',
+        days14: '14 روز',
+        days21: '21 روز',
+        days28: '28 روز',
+        registerContract: 'ثبت قرارداد',
         selectLanguage: 'انتخاب زبان:',
         walletBalance: 'موجودی فعلی',
         points: 'امتیاز',
@@ -237,7 +348,7 @@
         errorFetchingNews: 'خطا در دریافت اخبار',
         errorFetchingContracts: 'خطا در دریافت قراردادها',
         errorFetchingReferral: 'خطا در دریافت اطلاعات معرفی',
-        errorConnectingServer: 'خطا در ارتباط با سرور',
+        errorConnectingServer: 'خطا در ارتباط با سرور'
       },
       en: {
         price: 'Price',
@@ -245,6 +356,21 @@
         referral: 'Referral',
         contract: 'Contract',
         wallet: 'Wallet',
+        selectCurrency: 'Select Currency:',
+        currencyName: 'Currency Name',
+        change24h: '24h Change',
+        referralSystem: 'Referral System',
+        manageContracts: 'Manage Contracts',
+        amount: 'Amount (USDT):',
+        amountPlaceholder: 'Example: 100',
+        dueDate: 'Due Date:',
+        description: 'Description:',
+        descriptionPlaceholder: 'Contract description (optional)',
+        days7: '7 days',
+        days14: '14 days',
+        days21: '21 days',
+        days28: '28 days',
+        registerContract: 'Register Contract',
         selectLanguage: 'Select Language:',
         walletBalance: 'Current Balance',
         points: 'Points',
@@ -266,7 +392,7 @@
         errorFetchingNews: 'Error fetching news',
         errorFetchingContracts: 'Error fetching contracts',
         errorFetchingReferral: 'Error fetching referral data',
-        errorConnectingServer: 'Error connecting to server',
+        errorConnectingServer: 'Error connecting to server'
       },
       es: {
         price: 'Precio',
@@ -274,6 +400,21 @@
         referral: 'Referidos',
         contract: 'Contrato',
         wallet: 'Cartera',
+        selectCurrency: 'Seleccionar moneda:',
+        currencyName: 'Nombre de moneda',
+        change24h: 'Cambio 24h',
+        referralSystem: 'Sistema de referidos',
+        manageContracts: 'Administrar contratos',
+        amount: 'Cantidad (USDT):',
+        amountPlaceholder: 'Ejemplo: 100',
+        dueDate: 'Fecha de vencimiento:',
+        description: 'Descripción:',
+        descriptionPlaceholder: 'Descripción del contrato (opcional)',
+        days7: '7 días',
+        days14: '14 días',
+        days21: '21 días',
+        days28: '28 días',
+        registerContract: 'Registrar contrato',
         selectLanguage: 'Seleccionar idioma:',
         walletBalance: 'Saldo actual',
         points: 'Puntos',
@@ -282,7 +423,7 @@
         withdraw: 'Retiro',
         noTransactions: 'No se encontraron transacciones',
         inviteLinkCopied: '¡Enlace de invitación copiado!',
-        enterValidAmount: 'Por favor, ingrese una cantidad válida',
+        enterValidAmount: 'Por favor ingrese un monto válido',
         registeringContract: 'Registrando contrato...',
         contractRegistered: '¡Contrato registrado con éxito!',
         noContracts: 'No hay contratos activos',
@@ -295,7 +436,7 @@
         errorFetchingNews: 'Error al obtener noticias',
         errorFetchingContracts: 'Error al obtener contratos',
         errorFetchingReferral: 'Error al obtener datos de referencia',
-        errorConnectingServer: 'Error al conectar con el servidor',
+        errorConnectingServer: 'Error al conectar con el servidor'
       },
       zh: {
         price: '价格',
@@ -303,6 +444,21 @@
         referral: '推荐',
         contract: '合同',
         wallet: '钱包',
+        selectCurrency: '选择货币:',
+        currencyName: '货币名称',
+        change24h: '24小时变化',
+        referralSystem: '推荐系统',
+        manageContracts: '管理合同',
+        amount: '金额 (USDT):',
+        amountPlaceholder: '例如: 100',
+        dueDate: '到期日期:',
+        description: '描述:',
+        descriptionPlaceholder: '合同描述 (可选)',
+        days7: '7天',
+        days14: '14天',
+        days21: '21天',
+        days28: '28天',
+        registerContract: '注册合同',
         selectLanguage: '选择语言:',
         walletBalance: '当前余额',
         points: '积分',
@@ -310,21 +466,21 @@
         deposit: '存款',
         withdraw: '取款',
         noTransactions: '未找到交易',
-        inviteLinkCopied: '邀请链接已复制！',
+        inviteLinkCopied: '邀请链接已复制!',
         enterValidAmount: '请输入有效金额',
-        registeringContract: '注册合同中...',
-        contractRegistered: '合同注册成功！',
-        noContracts: '没有活跃的合同',
-        fetchingMarketData: '获取市场数据中...',
+        registeringContract: '正在注册合同...',
+        contractRegistered: '合同注册成功!',
+        noContracts: '没有活跃合同',
+        fetchingMarketData: '正在获取市场数据...',
         noMarketData: '没有可用数据',
-        fetchingNews: '获取新闻中...',
+        fetchingNews: '正在获取新闻...',
         noNews: '未找到新闻',
-        errorLoadingChart: '加载图表时出错',
-        errorFetchingData: '获取市场数据时出错',
-        errorFetchingNews: '获取新闻时出错',
-        errorFetchingContracts: '获取合同时出错',
-        errorFetchingReferral: '获取推荐数据时出错',
-        errorConnectingServer: '连接服务器时出错',
+        errorLoadingChart: '加载图表错误',
+        errorFetchingData: '获取市场数据错误',
+        errorFetchingNews: '获取新闻错误',
+        errorFetchingContracts: '获取合同错误',
+        errorFetchingReferral: '获取推荐数据错误',
+        errorConnectingServer: '连接服务器错误'
       },
       hi: {
         price: 'कीमत',
@@ -332,6 +488,21 @@
         referral: 'रेफरल',
         contract: 'अनुबंध',
         wallet: 'वॉलेट',
+        selectCurrency: 'मुद्रा चुनें:',
+        currencyName: 'मुद्रा का नाम',
+        change24h: '24 घंटे में परिवर्तन',
+        referralSystem: 'रेफरल प्रणाली',
+        manageContracts: 'अनुबंध प्रबंधित करें',
+        amount: 'राशि (USDT):',
+        amountPlaceholder: 'उदाहरण: 100',
+        dueDate: 'नियत तारीख:',
+        description: 'विवरण:',
+        descriptionPlaceholder: 'अनुबंध विवरण (वैकल्पिक)',
+        days7: '7 दिन',
+        days14: '14 दिन',
+        days21: '21 दिन',
+        days28: '28 दिन',
+        registerContract: 'अनुबंध पंजीकृत करें',
         selectLanguage: 'भाषा चुनें:',
         walletBalance: 'वर्तमान शेष',
         points: 'अंक',
@@ -344,16 +515,16 @@
         registeringContract: 'अनुबंध पंजीकृत किया जा रहा है...',
         contractRegistered: 'अनुबंध सफलतापूर्वक पंजीकृत!',
         noContracts: 'कोई सक्रिय अनुबंध नहीं',
-        fetchingMarketData: 'बाजार डेटा प्राप्त कर रहा है...',
+        fetchingMarketData: 'बाजार डेटा प्राप्त किया जा रहा है...',
         noMarketData: 'कोई डेटा उपलब्ध नहीं',
-        fetchingNews: 'समाचार प्राप्त कर रहा है...',
+        fetchingNews: 'समाचार प्राप्त किए जा रहे हैं...',
         noNews: 'कोई समाचार नहीं मिला',
         errorLoadingChart: 'चार्ट लोड करने में त्रुटि',
         errorFetchingData: 'बाजार डेटा प्राप्त करने में त्रुटि',
         errorFetchingNews: 'समाचार प्राप्त करने में त्रुटि',
         errorFetchingContracts: 'अनुबंध प्राप्त करने में त्रुटि',
         errorFetchingReferral: 'रेफरल डेटा प्राप्त करने में त्रुटि',
-        errorConnectingServer: 'सर्वर से कनेक्ट करने में त्रुटि',
+        errorConnectingServer: 'सर्वर से कनेक्ट करने में त्रुटि'
       },
       ar: {
         price: 'السعر',
@@ -361,6 +532,21 @@
         referral: 'الإحالة',
         contract: 'العقد',
         wallet: 'المحفظة',
+        selectCurrency: 'اختر العملة:',
+        currencyName: 'اسم العملة',
+        change24h: 'تغيير 24 ساعة',
+        referralSystem: 'نظام الإحالة',
+        manageContracts: 'إدارة العقود',
+        amount: 'المبلغ (USDT):',
+        amountPlaceholder: 'مثال: 100',
+        dueDate: 'تاريخ الاستحقاق:',
+        description: 'الوصف:',
+        descriptionPlaceholder: 'وصف العقد (اختياري)',
+        days7: '7 أيام',
+        days14: '14 يومًا',
+        days21: '21 يومًا',
+        days28: '28 يومًا',
+        registerContract: 'تسجيل العقد',
         selectLanguage: 'اختر اللغة:',
         walletBalance: 'الرصيد الحالي',
         points: 'النقاط',
@@ -369,7 +555,7 @@
         withdraw: 'سحب',
         noTransactions: 'لم يتم العثور على معاملات',
         inviteLinkCopied: 'تم نسخ رابط الدعوة!',
-        enterValidAmount: 'يرجى إدخال مبلغ صالح',
+        enterValidAmount: 'الرجاء إدخال مبلغ صالح',
         registeringContract: 'جارٍ تسجيل العقد...',
         contractRegistered: 'تم تسجيل العقد بنجاح!',
         noContracts: 'لا توجد عقود نشطة',
@@ -382,7 +568,7 @@
         errorFetchingNews: 'خطأ في جلب الأخبار',
         errorFetchingContracts: 'خطأ في جلب العقود',
         errorFetchingReferral: 'خطأ في جلب بيانات الإحالة',
-        errorConnectingServer: 'خطأ في الاتصال بالخادم',
+        errorConnectingServer: 'خطأ في الاتصال بالخادم'
       },
       ru: {
         price: 'Цена',
@@ -390,6 +576,21 @@
         referral: 'Реферал',
         contract: 'Контракт',
         wallet: 'Кошелек',
+        selectCurrency: 'Выберите валюту:',
+        currencyName: 'Название валюты',
+        change24h: 'Изменение за 24ч',
+        referralSystem: 'Реферальная система',
+        manageContracts: 'Управление контрактами',
+        amount: 'Сумма (USDT):',
+        amountPlaceholder: 'Пример: 100',
+        dueDate: 'Срок действия:',
+        description: 'Описание:',
+        descriptionPlaceholder: 'Описание контракта (необязательно)',
+        days7: '7 дней',
+        days14: '14 дней',
+        days21: '21 день',
+        days28: '28 дней',
+        registerContract: 'Зарегистрировать контракт',
         selectLanguage: 'Выберите язык:',
         walletBalance: 'Текущий баланс',
         points: 'Очки',
@@ -411,20 +612,35 @@
         errorFetchingNews: 'Ошибка получения новостей',
         errorFetchingContracts: 'Ошибка получения контрактов',
         errorFetchingReferral: 'Ошибка получения данных рефералов',
-        errorConnectingServer: 'Ошибка подключения к серверу',
+        errorConnectingServer: 'Ошибка подключения к серверу'
       },
       pt: {
         price: 'Preço',
         news: 'Notícias',
-        referral: 'Referência',
+        referral: 'Indicação',
         contract: 'Contrato',
         wallet: 'Carteira',
-        selectLanguage: 'Selecionar idioma:',
+        selectCurrency: 'Selecione a moeda:',
+        currencyName: 'Nome da moeda',
+        change24h: 'Mudança 24h',
+        referralSystem: 'Sistema de indicação',
+        manageContracts: 'Gerenciar contratos',
+        amount: 'Quantidade (USDT):',
+        amountPlaceholder: 'Exemplo: 100',
+        dueDate: 'Data de vencimento:',
+        description: 'Descrição:',
+        descriptionPlaceholder: 'Descrição do contrato (opcional)',
+        days7: '7 dias',
+        days14: '14 dias',
+        days21: '21 dias',
+        days28: '28 dias',
+        registerContract: 'Registrar contrato',
+        selectLanguage: 'Selecione o idioma:',
         walletBalance: 'Saldo atual',
         points: 'Pontos',
         recentTransactions: 'Transações recentes',
         deposit: 'Depósito',
-        withdraw: 'Retirada',
+        withdraw: 'Saque',
         noTransactions: 'Nenhuma transação encontrada',
         inviteLinkCopied: 'Link de convite copiado!',
         enterValidAmount: 'Por favor, insira um valor válido',
@@ -439,8 +655,8 @@
         errorFetchingData: 'Erro ao obter dados do mercado',
         errorFetchingNews: 'Erro ao obter notícias',
         errorFetchingContracts: 'Erro ao obter contratos',
-        errorFetchingReferral: 'Erro ao obter dados de referência',
-        errorConnectingServer: 'Erro ao conectar ao servidor',
+        errorFetchingReferral: 'Erro ao obter dados de indicação',
+        errorConnectingServer: 'Erro ao conectar ao servidor'
       },
       fr: {
         price: 'Prix',
@@ -448,7 +664,22 @@
         referral: 'Parrainage',
         contract: 'Contrat',
         wallet: 'Portefeuille',
-        selectLanguage: 'Choisir la langue:',
+        selectCurrency: 'Sélectionnez la devise:',
+        currencyName: 'Nom de la devise',
+        change24h: 'Changement 24h',
+        referralSystem: 'Système de parrainage',
+        manageContracts: 'Gérer les contrats',
+        amount: 'Montant (USDT):',
+        amountPlaceholder: 'Exemple: 100',
+        dueDate: 'Date d\'échéance:',
+        description: 'Description:',
+        descriptionPlaceholder: 'Description du contrat (optionnelle)',
+        days7: '7 jours',
+        days14: '14 jours',
+        days21: '21 jours',
+        days28: '28 jours',
+        registerContract: 'Enregistrer le contrat',
+        selectLanguage: 'Sélectionnez la langue:',
         walletBalance: 'Solde actuel',
         points: 'Points',
         recentTransactions: 'Transactions récentes',
@@ -469,19 +700,20 @@
         errorFetchingNews: 'Erreur lors de la récupération des actualités',
         errorFetchingContracts: 'Erreur lors de la récupération des contrats',
         errorFetchingReferral: 'Erreur lors de la récupération des données de parrainage',
-        errorConnectingServer: 'Erreur de connexion au serveur',
-      },
+        errorConnectingServer: 'Erreur de connexion au serveur'
+      }
     };
 
     function setLanguage(lang) {
       appLanguage = lang;
       document.documentElement.lang = lang;
+      document.getElementById('languageSelect').value = lang;
       updateLanguageTexts();
     }
 
     function detectUserLanguage() {
       const userLang = navigator.language || navigator.userLanguage;
-      const supportedLangs = ['fa', 'en', 'es', 'fr', 'de', 'zh', 'ar', 'ru', 'tr', 'ja'];
+      const supportedLangs = ['fa', 'en', 'es', 'zh', 'hi', 'ar', 'ru', 'pt', 'fr'];
       const primaryLang = userLang.split('-')[0];
 
       if (supportedLangs.includes(primaryLang)) {
@@ -493,125 +725,39 @@
 
     function updateLanguageTexts() {
       const texts = translations[appLanguage];
-
-      // Update tab labels
-      document.querySelectorAll('.tab').forEach((tab, index) => {
-        const labels = [texts.price, texts.news, texts.referral, texts.contract, texts.wallet];
-        tab.querySelector('i').nextSibling.textContent = labels[index];
-      });
-
-      // Update wallet tab content
-      if (currentTab === 4) {
-        document.querySelector('.language-section label').textContent = texts.selectLanguage;
-        document.getElementById('wallet-balance-label').textContent = texts.walletBalance;
-        document.getElementById('recent-transactions-label').textContent = texts.recentTransactions;
-        document.querySelector('.scrollable p').textContent = texts.noTransactions;
-
-        document.querySelectorAll('button').forEach(button => {
-          if (button.textContent.includes('واریز') || button.textContent.includes('Deposit')) {
-            button.textContent = texts.deposit;
-          }
-          if (button.textContent.includes('برداشت') || button.textContent.includes('Withdraw')) {
-            button.textContent = texts.withdraw;
-          }
-        });
-      }
-
-      // Update error messages dynamically
-      document.querySelectorAll('.error-message').forEach(el => {
-        if (el.textContent.includes('خطا در دریافت اطلاعات بازار') || el.textContent.includes('Error fetching market data')) {
-          el.textContent = texts.errorFetchingData;
-        }
-        if (el.textContent.includes('خطا در دریافت اخبار') || el.textContent.includes('Error fetching news')) {
-          el.textContent = texts.errorFetchingNews;
-        }
-        if (el.textContent.includes('خطا در دریافت قراردادها') || el.textContent.includes('Error fetching contracts')) {
-          el.textContent = texts.errorFetchingContracts;
-        }
-        if (el.textContent.includes('خطا در ارتباط با سرور') || el.textContent.includes('Error connecting to server')) {
-          el.textContent = texts.errorConnectingServer;
-        }
-      });
-
-      // Update other static texts dynamically
+      
+      // Update all elements with data-translate-key
       document.querySelectorAll('[data-translate-key]').forEach(el => {
         const key = el.getAttribute('data-translate-key');
         if (texts[key]) {
           el.textContent = texts[key];
         }
       });
+      
+      // Update placeholder texts
+      document.querySelectorAll('[data-translate-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-translate-placeholder');
+        if (texts[key]) {
+          el.placeholder = texts[key];
+        }
+      });
+      
+      // Update tab labels
+      document.querySelectorAll('.tab').forEach((tab, index) => {
+        const labels = [texts.price, texts.news, texts.referral, texts.contract, texts.wallet];
+        const span = tab.querySelector('span');
+        if (span) span.textContent = labels[index];
+      });
+      
+      // Update table headers if table exists
+      const tableHeaders = document.querySelectorAll('th');
+      if (tableHeaders.length >= 3) {
+        tableHeaders[0].textContent = texts.currencyName || 'Currency';
+        tableHeaders[1].textContent = texts.price || 'Price';
+        tableHeaders[2].textContent = texts.change24h || '24h Change';
+      }
     }
-  </script>
-</head>
-<body onload="detectUserLanguage()">
-  <div class="tab-container">
-    <div class="tab-content active" id="tab-0">
-      <div class="currency-select-container">
-        <label data-translate-key="selectCurrency">${translations[appLanguage].selectCurrency || 'انتخاب ارز:'}</label>
-        <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
-          <option value="TON" selected>TonCoin</option>
-        </select>
-      </div>
-      <div class="tradingview-widget-container">
-        <div id="tradingview-widget"></div>
-      </div>
-      <div id="crypto-table-container" class="scrollable">
-        <p data-translate-key="fetchingMarketData">${translations[appLanguage].fetchingMarketData || 'در حال دریافت اطلاعات بازار...'}</p>
-      </div>
-    </div>
-    <div class="tab-content" id="tab-1">
-      <div class="loading" data-translate-key="fetchingNews">${translations[appLanguage].fetchingNews || 'در حال دریافت اخبار...'}</div>
-    </div>
-    <div class="tab-content" id="tab-2">
-      <h2 data-translate-key="referralSystem">${translations[appLanguage].referralSystem || 'سیستم معرفی دوستان'}</h2>
-      <p data-translate-key="inviteLinkCopied">${translations[appLanguage].inviteLinkCopied || 'لینک دعوت کپی شد!'}</p>
-    </div>
-    <div class="tab-content" id="tab-3">
-      <h2 data-translate-key="manageContracts">${translations[appLanguage].manageContracts || 'مدیریت قراردادها'}</h2>
-      <label data-translate-key="amount">${translations[appLanguage].amount || 'مبلغ (USDT):'}</label>
-      <label data-translate-key="dueDate">${translations[appLanguage].dueDate || 'تاریخ پایان:'}</label>
-      <label data-translate-key="description">${translations[appLanguage].description || 'توضیحات:'}</label>
-    </div>
-    <div class="tab-content" id="tab-4">
-      <div class="language-section">
-        <div class="language-selector">
-          <label data-translate-key="selectLanguage">${translations[appLanguage].selectLanguage || 'انتخاب زبان:'}</label>
-          <select onchange="setLanguage(this.value)" style="flex:1">
-            ${Object.keys(translations).map(
-              lang => `<option value="${lang}" ${appLanguage === lang ? 'selected' : ''}>${translations[lang].selectLanguage}</option>`
-            ).join('')}
-          </select>
-        </div>
-      </div>
-      <div style="background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
-        <p id="wallet-balance-label" data-translate-key="walletBalance">${translations[appLanguage].walletBalance || 'موجودی فعلی'}</p>
-        <p style="font-size: 32px; font-weight: bold; margin: 0; color: #00b894;">0 <span style="font-size: 16px;" data-translate-key="points">${translations[appLanguage].points || 'امتیاز'}</span></p>
-      </div>
-      <div style="background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-        <h3 id="recent-transactions-label" data-translate-key="recentTransactions">${translations[appLanguage].recentTransactions || 'تراکنش‌های اخیر'}</h3>
-        <p data-translate-key="noTransactions">${translations[appLanguage].noTransactions || 'تراکنشی یافت نشد'}</p>
-      </div>
-      <div style="display: flex; gap: 10px;">
-        <button style="flex: 1; background: #00b894;" data-translate-key="deposit">${translations[appLanguage].deposit || 'واریز'}</button>
-        <button style="flex: 1; background: #fc5c65;" data-translate-key="withdraw">${translations[appLanguage].withdraw || 'برداشت'}</button>
-      </div>
-    </div>
-  </div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab(0)"><i class="fas fa-coins"></i>قیمت</div>
-    <div class="tab" onclick="switchTab(1)"><i class="fas fa-newspaper"></i>اخبار</div>
-    <div class="tab" onclick="switchTab(2)"><i class="fas fa-user-friends"></i>رفرال</div>
-    <div class="tab" onclick="switchTab(3)"><i class="fas fa-file-signature"></i>قرارداد</div>
-    <div class="tab" onclick="switchTab(4)"><i class="fas fa-wallet"></i>کیف پول</div>
-  </div>
 
-  <script>
-    let currentTab = 0;
-    const loadedTabs = {};
-    const tabEls = document.querySelectorAll('.tab-content');
-    let tradingViewScriptLoaded = false;
-
-    // تابع بارگذاری اسکریپت TradingView
     function loadTradingViewScript(callback) {
       if (typeof TradingView !== 'undefined') {
         tradingViewScriptLoaded = true;
@@ -628,12 +774,11 @@
       script.onerror = () => {
         console.error('Failed to load TradingView script');
         document.getElementById('tradingview-widget')?.insertAdjacentHTML('afterend', 
-          '<p class="error-message">خطا در بارگذاری نمودار. لطفاً اتصال اینترنت را بررسی کنید.</p>');
+          `<p class="error-message">${translations[appLanguage].errorLoadingChart}</p>`);
       };
       document.body.appendChild(script);
     }
 
-    // تابع ایجاد ویجت TradingView
     function initializeTradingViewWidget(symbol = 'TON') {
       if (!tradingViewScriptLoaded) {
         loadTradingViewScript(() => initializeTradingViewWidget(symbol));
@@ -655,7 +800,7 @@
           "timezone": "Asia/Tehran",
           "theme": "dark",
           "style": "2",
-          "locale": "fa_IR",
+          "locale": appLanguage === 'fa' ? 'fa_IR' : 'en',
           "toolbar_bg": "#1e1e1e",
           "enable_publishing": false,
           "hide_legend": true,
@@ -665,18 +810,18 @@
           "allow_symbol_change": false,
           "hide_volume": true,
           "container_id": "tradingview-widget",
-          "studies": [] // Removed "Volume" indicator
+          "studies": []
         });
       } catch (error) {
         console.error('TradingView error:', error);
-        widgetContainer.innerHTML = '<p class="error-message">خطا در نمایش نمودار</p>';
+        widgetContainer.innerHTML = `<p class="error-message">${translations[appLanguage].errorLoadingChart}</p>`;
       }
     }
 
     function updateTradingViewWidget(symbol) {
       if (typeof symbol !== 'string' || !symbol.trim()) {
         console.error('Invalid symbol:', symbol);
-        return; // Exit if the symbol is not valid
+        return;
       }
       initializeTradingViewWidget(symbol);
     }
@@ -684,14 +829,11 @@
     function switchTab(index) {
       if (index === currentTab) return;
 
-      // Remove active class for the current tab content
       tabEls[currentTab].classList.remove("active");
-
       document.querySelectorAll('.tab').forEach((tab, i) =>
         tab.classList.toggle("active", i === index)
       );
 
-      // Add active class for the new tab content after a slight delay
       setTimeout(() => {
         tabEls[index].classList.add("active");
       }, 50);
@@ -701,10 +843,6 @@
       if (!loadedTabs[index]) {
         loadTab(index);
         loadedTabs[index] = true;
-      }
-
-      if (index === 1) {
-        updateLanguageTexts(); // Update texts when switching to the "اخبار" tab
       }
     }
 
@@ -727,7 +865,7 @@
     function loadPriceTab(contentEl) {
       contentEl.innerHTML = `
         <div class="currency-select-container">
-          <label>انتخاب ارز:</label>
+          <label data-translate-key="selectCurrency"></label>
           <select id="currencySelect" onchange="updateTradingViewWidget(this.value)">
             <option value="TON" selected>TonCoin</option>
           </select>
@@ -736,12 +874,11 @@
           <div id="tradingview-widget"></div>
         </div>
         <div id="crypto-table-container" class="scrollable">
-          <p>در حال دریافت اطلاعات بازار...</p>
+          <p data-translate-key="fetchingMarketData"></p>
         </div>`;
       
       initializeTradingViewWidget("TON");
 
-      // Fetch and display currencies
       fetch("https://mnymaker-production.up.railway.app/crypto")
         .then(res => {
           if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -749,7 +886,6 @@
         })
         .then(data => {
           if (data?.length > 0) {
-            // Ensure data types are correct, remove duplicates, and exclude Tether (USDT)
             const uniqueCurrencies = Array.from(new Map(data.map(c => [c.symbol, c])).values())
               .filter(c => c.symbol !== "USDT" && typeof c.symbol === "string" && typeof c.name === "string" && typeof c.price === "number");
 
@@ -775,27 +911,30 @@
               <table>
                 <thead>
                   <tr>
-                    <th>نام ارز</th>
-                    <th>$ قیمت</th>
-                    <th>تغییر 24ساعت</th>
+                    <th data-translate-key="currencyName"></th>
+                    <th data-translate-key="price"></th>
+                    <th data-translate-key="change24h"></th>
                   </tr>
                 </thead>
                 <tbody>${tableRows}</tbody>
               </table>`;
+              
+            updateLanguageTexts();
           } else {
             document.getElementById("crypto-table-container").innerHTML = 
-              '<p class="error-message">داده‌ای برای نمایش وجود ندارد</p>';
+              `<p class="error-message">${translations[appLanguage].noMarketData}</p>`;
           }
         })
         .catch(err => {
           console.error("Error fetching crypto data:", err);
           document.getElementById("crypto-table-container").innerHTML = 
-            '<p class="error-message">خطا در دریافت اطلاعات بازار</p>';
+            `<p class="error-message">${translations[appLanguage].errorFetchingData}</p>`;
         });
     }
 
     function loadNewsTab(contentEl) {
-      contentEl.innerHTML = '<div class="loading"></div>';
+      contentEl.innerHTML = `<div class="loading" data-translate-key="fetchingNews"></div>`;
+      updateLanguageTexts();
       
       fetch("https://amyrgit-production.up.railway.app/news")
         .then(res => {
@@ -828,22 +967,23 @@
                   border-radius: 8px;
                   text-decoration: none;
                 ">
-                  ادامه خبر
+                  ${translations[appLanguage].readMore || 'Read More'}
                 </a>
               </div>`
             ).join("");
           } else {
-            contentEl.innerHTML = '<p class="error-message">اخبار جدیدی یافت نشد</p>';
+            contentEl.innerHTML = `<p class="error-message">${translations[appLanguage].noNews}</p>`;
           }
         })
         .catch(() => {
-          contentEl.innerHTML = '<p class="error-message">خطا در دریافت اخبار</p>';
+          contentEl.innerHTML = `<p class="error-message">${translations[appLanguage].errorFetchingNews}</p>`;
         });
     }
 
     function loadReferralTab(contentEl) {
       loadTelegramUser(userId => {
-        contentEl.innerHTML = '<div class="loading"></div>';
+        contentEl.innerHTML = `<div class="loading" data-translate-key="fetchingReferral"></div>`;
+        updateLanguageTexts();
         
         fetch(`https://mnymaker-production.up.railway.app/referral/join?user_id=${userId}`)
           .then(res => {
@@ -853,7 +993,7 @@
           .then(data => {
             if (data.ref_code) {
               contentEl.innerHTML = `
-                <h2 style="margin-bottom: 15px;">سیستم معرفی دوستان</h2>
+                <h2 style="margin-bottom: 15px;" data-translate-key="referralSystem"></h2>
                 
                 <div style="
                   background: #1e1e1e;
@@ -861,7 +1001,7 @@
                   border-radius: 12px;
                   margin-bottom: 20px;
                 ">
-                  <p style="margin: 0 0 10px 0;">لینک دعوت شما:</p>
+                  <p style="margin: 0 0 10px 0;" data-translate-key="yourInviteLink"></p>
                   <input 
                     value="https://t.me/MnyMakr_BOT?start=${data.ref_code}" 
                     readonly
@@ -883,8 +1023,7 @@
                     width: 100%;
                     border-radius: 8px;
                     cursor: pointer;
-                  ">
-                    کپی لینک
+                  " data-translate-key="copyLink">
                   </button>
                 </div>
                 
@@ -895,10 +1034,10 @@
                   margin-bottom: 20px;
                 ">
                   <p style="margin: 0 0 5px 0; font-size: 18px;">
-                    امتیاز شما: <strong>${data.points || 0}</strong>
+                    <span data-translate-key="yourPoints"></span>: <strong>${data.points || 0}</strong>
                   </p>
                   <p style="margin: 0; color: #aaa;">
-                    هر دعوت موفق: +10 امتیاز
+                    <span data-translate-key="perSuccessfulInvite"></span>: +10 <span data-translate-key="points"></span>
                   </p>
                 </div>
                 
@@ -907,20 +1046,22 @@
                   padding: 15px;
                   border-radius: 12px;
                 ">
-                  <h3 style="margin-top: 0;">افراد دعوت‌شده:</h3>
+                  <h3 style="margin-top: 0;" data-translate-key="invitedUsers"></h3>
                   ${data.invited?.length > 0 ? 
                     `<ul style="padding-right: 20px;">${
                       data.invited.map(id => `<li style="margin-bottom: 5px;">${id}</li>`).join("")
                     }</ul>` : 
-                    '<p style="color: #aaa;">هنوز کسی را دعوت نکرده‌اید</p>'
+                    `<p style="color: #aaa;" data-translate-key="noInvitedUsers"></p>`
                   }
                 </div>`;
+                
+              updateLanguageTexts();
             } else {
-              contentEl.innerHTML = '<p class="error-message">خطا در دریافت اطلاعات معرفی</p>';
+              contentEl.innerHTML = `<p class="error-message">${translations[appLanguage].errorFetchingReferral}</p>`;
             }
           })
           .catch(() => {
-            contentEl.innerHTML = '<p class="error-message">خطا در ارتباط با سرور</p>';
+            contentEl.innerHTML = `<p class="error-message">${translations[appLanguage].errorConnectingServer}</p>`;
           });
       });
     }
@@ -928,7 +1069,7 @@
     function loadContractTab(contentEl) {
       loadTelegramUser(userId => {
         contentEl.innerHTML = `
-          <h2 style="margin-bottom: 20px;">مدیریت قراردادها</h2>
+          <h2 style="margin-bottom: 20px;" data-translate-key="manageContracts"></h2>
           
           <div style="
             background: #1e1e1e;
@@ -936,31 +1077,31 @@
             border-radius: 12px;
             margin-bottom: 20px;
           ">
-            <h3 style="margin-top: 0;">ثبت قرارداد جدید</h3>
+            <h3 style="margin-top: 0;" data-translate-key="registerNewContract"></h3>
             
-            <label>مبلغ (USDT):</label>
+            <label data-translate-key="amount"></label>
             <input 
               type="number" 
               id="amount" 
-              placeholder="مثال: 100"
+              data-translate-placeholder="amountPlaceholder"
             />
             
-            <label>تاریخ پایان:</label>
+            <label data-translate-key="dueDate"></label>
             <select id="due">
-              ${[7, 14, 21, 28].map(d => `
-                <option value="${d}">${d} روز</option>
-              `).join("")}
+              <option value="7" data-translate-key="days7"></option>
+              <option value="14" data-translate-key="days14"></option>
+              <option value="21" data-translate-key="days21"></option>
+              <option value="28" data-translate-key="days28"></option>
             </select>
             
-            <label>توضیحات:</label>
+            <label data-translate-key="description"></label>
             <textarea 
               id="desc" 
               rows="3" 
-              placeholder="توضیحات قرارداد (اختیاری)"
+              data-translate-placeholder="descriptionPlaceholder"
             ></textarea>
             
-            <button onclick="submitContract('${userId}')">
-              ثبت قرارداد
+            <button onclick="submitContract('${userId}')" data-translate-key="registerContract">
             </button>
           </div>
           
@@ -969,11 +1110,12 @@
             padding: 15px;
             border-radius: 12px;
           ">
-            <h3 style="margin-top: 0;">قراردادهای فعال</h3>
-            <p>در حال دریافت لیست قراردادها...</p>
+            <h3 style="margin-top: 0;" data-translate-key="activeContracts"></h3>
+            <p data-translate-key="fetchingContracts"></p>
           </div>`;
           
-        // دریافت لیست قراردادها
+        updateLanguageTexts();
+          
         fetch(`https://mnymaker-production.up.railway.app/contracts?user_id=${userId}`)
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -984,28 +1126,28 @@
             
             if (contracts?.length > 0) {
               contractsList.innerHTML = `
-                <h3 style="margin-top: 0;">قراردادهای فعال</h3>
+                <h3 style="margin-top: 0;" data-translate-key="activeContracts"></h3>
                 <div class="scrollable">
                   <table>
                     <thead>
                       <tr>
-                        <th>مبلغ</th>
-                        <th>تاریخ پایان</th>
-                        <th>وضعیت</th>
+                        <th data-translate-key="amount"></th>
+                        <th data-translate-key="dueDate"></th>
+                        <th data-translate-key="status"></th>
                       </tr>
                     </thead>
                     <tbody>
                       ${contracts.map(c => `
                         <tr>
                           <td>${c.amount} USDT</td>
-                          <td>${new Date(c.due_date).toLocaleDateString('fa-IR')}</td>
+                          <td>${new Date(c.due_date).toLocaleDateString(appLanguage === 'fa' ? 'fa-IR' : 'en-US')}</td>
                           <td style="color: ${
                             c.status === 'active' ? '#26de81' : 
                             c.status === 'pending' ? '#f7b731' : '#fc5c65'
                           }">
                             ${
-                              c.status === 'active' ? 'فعال' : 
-                              c.status === 'pending' ? 'در انتظار' : 'پایان یافته'
+                              c.status === 'active' ? translations[appLanguage].active : 
+                              c.status === 'pending' ? translations[appLanguage].pending : translations[appLanguage].expired
                             }
                           </td>
                         </tr>
@@ -1014,55 +1156,59 @@
                   </table>
                 </div>`;
             } else {
-              contractsList.innerHTML = '<p>قرارداد فعالی وجود ندارد</p>';
+              contractsList.innerHTML = `<p data-translate-key="noContracts"></p>`;
             }
+            updateLanguageTexts();
           })
           .catch(() => {
             document.getElementById("contracts-list").innerHTML = 
-              '<p class="error-message">خطا در دریافت قراردادها</p>';
+              `<p class="error-message">${translations[appLanguage].errorFetchingContracts}</p>`;
           });
       });
     }
 
     function loadWalletTab(contentEl) {
-      loadTelegramUser(userId => {
-        contentEl.innerHTML = `
-          <div class="language-section">
-            <div class="language-selector">
-              <label>${translations[appLanguage].selectLanguage}</label>
-              <select onchange="setLanguage(this.value)" style="flex:1">
-                ${Object.keys(translations).map(
-                  lang => `<option value="${lang}" ${appLanguage === lang ? 'selected' : ''}>${translations[lang].selectLanguage}</option>`
-                ).join('')}
-              </select>
-            </div>
+      contentEl.innerHTML = `
+        <div class="language-section">
+          <div class="language-selector">
+            <label data-translate-key="selectLanguage"></label>
+            <select id="languageSelect" onchange="setLanguage(this.value)" style="flex:1">
+              <option value="fa">فارسی</option>
+              <option value="en">English</option>
+              <option value="es">Español</option>
+              <option value="zh">中文</option>
+              <option value="hi">हिन्दी</option>
+              <option value="ar">العربية</option>
+              <option value="ru">Русский</option>
+              <option value="pt">Português</option>
+              <option value="fr">Français</option>
+            </select>
           </div>
-          <div style="background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
-            <p id="wallet-balance-label" style="font-size: 14px; color: #aaa; margin-bottom: 5px;">${translations[appLanguage].walletBalance}</p>
-            <p style="font-size: 32px; font-weight: bold; margin: 0; color: #00b894;">0 <span style="font-size: 16px;">${translations[appLanguage].points}</span></p>
-          </div>
-          <div style="background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-            <h3 id="recent-transactions-label" style="margin-top: 0;">${translations[appLanguage].recentTransactions}</h3>
-            <p>تراکنشی یافت نشد</p>
-          </div>
-          <div style="display: flex; gap: 10px;">
-            <button style="flex: 1; background: #00b894;">${translations[appLanguage].deposit}</button>
-            <button style="flex: 1; background: #fc5c65;">${translations[appLanguage].withdraw}</button>
-          </div>`;
-      });
+        </div>
+        <div style="background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+          <p id="wallet-balance-label" data-translate-key="walletBalance"></p>
+          <p style="font-size: 32px; font-weight: bold; margin: 0; color: #00b894;">0 <span style="font-size: 16px;" data-translate-key="points"></span></p>
+        </div>
+        <div style="background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+          <h3 id="recent-transactions-label" data-translate-key="recentTransactions"></h3>
+          <p data-translate-key="noTransactions"></p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button style="flex: 1; background: #00b894;" data-translate-key="deposit"></button>
+          <button style="flex: 1; background: #fc5c65;" data-translate-key="withdraw"></button>
+        </div>`;
+      
+      updateLanguageTexts();
+      document.getElementById('languageSelect').value = appLanguage;
     }
 
     function loadTelegramUser(callback) {
       if (window.Telegram && Telegram.WebApp.initDataUnsafe?.user) {
         callback(Telegram.WebApp.initDataUnsafe.user.id);
       } else {
-        // حالت آزمایشی - فقط برای توسعه
         const testUserId = Math.floor(Math.random() * 1000000);
         console.warn('Running in test mode with random user ID');
         callback(testUserId);
-        // در حالت واقعی:
-        // document.getElementById(`tab-${currentTab}`).innerHTML = 
-        //   '<p class="error-message">این قابلیت تنها در محیط تلگرام فعال است</p>';
       }
     }
 
@@ -1071,7 +1217,7 @@
       if (input) {
         input.select();
         document.execCommand('copy');
-        alert('لینک دعوت کپی شد!');
+        alert(translations[appLanguage].inviteLinkCopied);
       }
     }
 
@@ -1081,40 +1227,40 @@
       const desc = document.getElementById('desc').value;
       
       if (!amount || isNaN(amount)) {
-        alert('لطفاً مبلغ معتبر وارد کنید');
+        alert(translations[appLanguage].enterValidAmount);
         return;
       }
       
       const contractsList = document.getElementById('contracts-list');
-      contractsList.innerHTML = '<p>در حال ثبت قرارداد...</p>';
+      contractsList.innerHTML = `<p>${translations[appLanguage].registeringContract}</p>`;
       
-      // اینجا باید درخواست به سرور ارسال شود
       setTimeout(() => {
         contractsList.innerHTML = `
-          <p style="color: #26de81;">قرارداد با موفقیت ثبت شد!</p>
+          <p style="color: #26de81;">${translations[appLanguage].contractRegistered}</p>
           <div class="scrollable">
             <table>
               <thead>
                 <tr>
-                  <th>مبلغ</th>
-                  <th>تاریخ پایان</th>
-                  <th>وضعیت</th>
+                  <th data-translate-key="amount"></th>
+                  <th data-translate-key="dueDate"></th>
+                  <th data-translate-key="status"></th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>${amount} USDT</td>
-                  <td>${new Date(Date.now() + due * 24 * 60 * 60 * 1000).toLocaleDateString('fa-IR')}</td>
-                  <td style="color: #f7b731;">در انتظار تایید</td>
+                  <td>${new Date(Date.now() + due * 24 * 60 * 60 * 1000).toLocaleDateString(appLanguage === 'fa' ? 'fa-IR' : 'en-US')}</td>
+                  <td style="color: #f7b731;">${translations[appLanguage].pending}</td>
                 </tr>
               </tbody>
             </table>
           </div>`;
+        updateLanguageTexts();
       }, 1500);
     }
 
-    // بارگذاری اولیه
     window.onload = () => {
+      detectUserLanguage();
       loadTradingViewScript();
       loadTab(0);
     };
